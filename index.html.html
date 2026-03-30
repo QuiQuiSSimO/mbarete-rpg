@@ -1,0 +1,2716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mbarete RPG">
+<meta name="theme-color" content="#060912">
+<meta name="format-detection" content="telephone=no">
+<title>Mbarete RPG · Centro de Comando</title>
+<!-- iOS Splash / Icon (inline SVG data URI so no external file needed) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23060912'/%3E%3Ctext x='90' y='115' text-anchor='middle' font-size='80'%3E⚔️%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   CSS VARIABLES — DARK GAMING THEME
+═══════════════════════════════════════════ */
+:root {
+  /* Greens (HP/Health) */
+  --hp1: #00ff88;
+  --hp2: #00cc6a;
+  --hp3: #009950;
+  --hp4: #005c30;
+  /* Blues (XP/Mana) */
+  --xp1: #00d4ff;
+  --xp2: #009bbf;
+  --xp3: #006080;
+  /* Gold */
+  --gold1: #ffd700;
+  --gold2: #c8a800;
+  --gold3: rgba(255,215,0,.12);
+  /* Danger */
+  --red1: #ff4060;
+  --red2: #cc1a30;
+  /* Backgrounds */
+  --bg:   #060912;
+  --bg2:  #0c1020;
+  --bg3:  #121828;
+  --card: #0e1520;
+  --card2:#141d2e;
+  /* Text */
+  --text:  #e8f0ff;
+  --text2: #8a9bc4;
+  --text3: #4a5680;
+  /* Misc */
+  --border:  rgba(0,212,255,.14);
+  --border2: rgba(0,212,255,.06);
+  --border3: rgba(0,255,136,.12);
+  --warn: #ff9500;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 8px 32px rgba(0,0,0,.6);
+  --glow-green: 0 0 20px rgba(0,255,136,.25);
+  --glow-blue:  0 0 20px rgba(0,212,255,.25);
+  --glow-gold:  0 0 20px rgba(255,215,0,.25);
+}
+
+/* ═══ RESET ═══ */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Exo 2',system-ui,sans-serif;
+  background:var(--bg);color:var(--text);
+  font-size:14px;line-height:1.6;overflow-x:hidden;
+}
+/* Evita que el notch/home bar tape contenido */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  /* Previene scroll bounce blanco en iOS */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+/* Fix tap delay en iOS */
+a, button, [onclick] { touch-action: manipulation; }
+/* Evita zoom en inputs en iOS (requiere font-size >= 16px) */
+input, select, textarea { font-size: 16px !important; }
+/* Compensar visualmente el tamaño mayor */
+.input { font-size: 16px !important; }
+input[type="number"] { font-size: 16px !important; }
+/* Scrollbar en iOS scroll container */
+.nav { -webkit-overflow-scrolling: touch; }
+/* Banner "Agregar a inicio" */
+#ios-banner {
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:1000;
+  background:linear-gradient(135deg,var(--bg3),var(--card2));
+  border-top:1px solid var(--xp1);
+  padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 30px rgba(0,212,255,.2);
+}
+#ios-banner.show { display:flex; align-items:center; gap:12px; }
+.ios-banner-icon { font-size:32px; flex-shrink:0; }
+.ios-banner-text { flex:1; }
+.ios-banner-title { font-size:14px; font-weight:800; color:var(--xp1); }
+.ios-banner-sub { font-size:11.5px; color:var(--text2); margin-top:3px; line-height:1.4; }
+.ios-banner-close { background:none; border:none; color:var(--text3); font-size:22px; cursor:pointer; padding:4px; }
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--xp2);border-radius:99px}
+
+/* ═══════════════════════════════════════════
+   ANIMATED BG GRID
+═══════════════════════════════════════════ */
+body::before {
+  content:'';
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background-image:
+    linear-gradient(rgba(0,212,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;z-index:0;
+}
+body::after {
+  content:'';
+  position:fixed;top:0;left:0;right:0;height:200px;
+  background:radial-gradient(ellipse at 50% 0%, rgba(0,212,255,.06) 0%, transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* ═══════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════ */
+.app{max-width:430px;margin:0 auto;background:var(--bg);min-height:100vh;position:relative;z-index:1}
+
+/* ═══════════════════════════════════════════
+   HEADER / AVATAR PANEL
+═══════════════════════════════════════════ */
+.header{
+  background:linear-gradient(180deg,var(--bg3) 0%,var(--bg) 100%);
+  padding:16px 16px 12px;
+  position:sticky;top:0;z-index:50;
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);
+}
+.hdr-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+
+/* Avatar */
+.avatar-wrap{position:relative;flex-shrink:0}
+.avatar-ring{
+  width:56px;height:56px;border-radius:50%;
+  background:conic-gradient(var(--hp1) var(--hp-pct,100%), var(--bg3) 0);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;cursor:pointer;
+  transition:all .4s ease;
+}
+.avatar-ring::before{
+  content:'';position:absolute;inset:3px;border-radius:50%;
+  background:var(--bg3);
+}
+.avatar-inner{
+  position:absolute;inset:4px;border-radius:50%;
+  background:linear-gradient(135deg,#1a2440,#0e1520);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;z-index:1;
+}
+.avatar-lvl{
+  position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);
+  background:var(--gold1);color:#000;
+  font-size:9px;font-weight:900;font-family:'Orbitron',sans-serif;
+  padding:1px 6px;border-radius:99px;white-space:nowrap;z-index:2;
+}
+
+/* Stats area */
+.hdr-stats{flex:1;min-width:0}
+.hdr-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:var(--text);letter-spacing:.5px}
+.hdr-class{font-size:10px;color:var(--xp1);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+
+/* HP Bar */
+.bar-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.bar-lbl{font-size:10px;font-weight:800;color:var(--text3);width:22px;text-align:right;font-family:'Orbitron',sans-serif}
+.bar-track{flex:1;height:8px;background:var(--bg2);border-radius:99px;overflow:hidden;border:1px solid rgba(255,255,255,.04)}
+.bar-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.34,1.2,.64,1)}
+.bar-fill.hp{background:linear-gradient(90deg,var(--hp2),var(--hp1));box-shadow:0 0 8px rgba(0,255,136,.4)}
+.bar-fill.xp{background:linear-gradient(90deg,var(--xp2),var(--xp1));box-shadow:0 0 8px rgba(0,212,255,.4)}
+.bar-val{font-size:9px;font-weight:700;color:var(--text3);min-width:28px;text-align:right}
+
+/* Gold counter */
+.hdr-gold{display:flex;align-items:center;gap:5px;background:var(--gold3);border:1px solid rgba(255,215,0,.2);border-radius:30px;padding:4px 10px;font-size:12px;font-weight:800;color:var(--gold1);font-family:'Orbitron',sans-serif;cursor:pointer}
+.hdr-gold:active{transform:scale(.94)}
+
+/* Day badge */
+.hdr-day{font-size:10px;font-weight:700;color:var(--text3);text-align:center;margin-top:2px}
+
+/* Progress ring summary */
+.hdr-progress{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.hdr-score-num{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--hp1);line-height:1}
+.hdr-score-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.hdr-score-msg{font-size:13px;font-weight:700;color:var(--text);flex:1}
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+.nav{
+  display:flex;gap:4px;padding:8px 10px;
+  overflow-x:auto;background:var(--bg2);
+  border-bottom:1px solid var(--border2);
+  scrollbar-width:none;
+  position:sticky;top:152px;z-index:40;
+}
+.nav::-webkit-scrollbar{display:none}
+.nb{
+  flex-shrink:0;padding:7px 14px;border-radius:30px;
+  border:1.5px solid var(--border);background:transparent;
+  color:var(--text2);font-size:11.5px;font-weight:700;
+  font-family:'Exo 2',sans-serif;white-space:nowrap;cursor:pointer;
+  transition:all .2s;
+}
+.nb:active{transform:scale(.92)}
+.nb.active{
+  background:linear-gradient(135deg,var(--xp2),var(--xp3));
+  color:#fff;border-color:var(--xp1);
+  box-shadow:0 0 14px rgba(0,212,255,.3);
+}
+
+/* ═══════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════ */
+.screen{display:none;padding:0 0 100px;animation:fadeIn .2s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--card2);border:1px solid var(--border);border-radius:30px;
+  padding:10px 20px;font-size:13px;font-weight:700;color:var(--text);
+  z-index:999;box-shadow:var(--shadow);
+  opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;
+  max-width:90vw;text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.hp{border-color:var(--hp2);color:var(--hp1)}
+.toast.xp{border-color:var(--xp2);color:var(--xp1)}
+.toast.gold{border-color:var(--gold2);color:var(--gold1)}
+
+/* ═══════════════════════════════════════════
+   LEVEL UP OVERLAY
+═══════════════════════════════════════════ */
+.lvlup-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.85);
+  z-index:990;display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}
+.lvlup-overlay.show{opacity:1;pointer-events:auto}
+.lvlup-box{
+  background:var(--card2);border:2px solid var(--gold1);border-radius:24px;
+  padding:40px 30px;text-align:center;
+  box-shadow:0 0 60px rgba(255,215,0,.4);
+  animation:lvlBounce .5s cubic-bezier(.34,1.5,.64,1) both;
+}
+@keyframes lvlBounce{from{transform:scale(.6)}to{transform:scale(1)}}
+.lvlup-emoji{font-size:64px;display:block;animation:spin 1s ease both}
+@keyframes spin{from{transform:rotate(-20deg) scale(.8)}to{transform:rotate(0) scale(1)}}
+.lvlup-title{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--gold1);margin:12px 0 6px;text-shadow:0 0 30px rgba(255,215,0,.6)}
+.lvlup-sub{font-size:14px;color:var(--text2);margin-bottom:20px}
+.lvlup-btn{padding:14px 32px;background:linear-gradient(135deg,var(--gold2),var(--gold1));color:#000;border:none;border-radius:30px;font-size:15px;font-weight:800;font-family:'Exo 2',sans-serif;cursor:pointer}
+
+/* ═══════════════════════════════════════════
+   PARTICLES (confetti effect)
+═══════════════════════════════════════════ */
+.particle{
+  position:fixed;border-radius:50%;pointer-events:none;z-index:989;
+  animation:particleFall var(--dur,1.5s) ease forwards;
+}
+@keyframes particleFall{
+  0%{transform:translate(0,0) rotate(0);opacity:1}
+  100%{transform:translate(var(--dx,20px),300px) rotate(720deg);opacity:0}
+}
+
+/* ═══════════════════════════════════════════
+   REMINDER BANNER
+═══════════════════════════════════════════ */
+.reminder-banner{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--bg3),var(--card2));
+  border:1px solid var(--xp1);border-top:none;border-radius:0 0 16px 16px;
+  padding:10px 20px;z-index:80;
+  box-shadow:0 4px 20px rgba(0,212,255,.3);
+  display:flex;align-items:center;gap:10px;
+  transition:transform .4s;max-width:390px;width:90%;
+}
+.reminder-banner.hide{transform:translateX(-50%) translateY(-120%)}
+.rb-icon{font-size:22px}
+.rb-text{font-size:13px;font-weight:700;color:var(--xp1);flex:1}
+.rb-close{background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:2px 6px}
+
+/* ═══════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════ */
+.card{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:var(--radius);padding:18px;margin:0 14px 12px;
+  box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s;
+}
+.card:active{transform:scale(.99)}
+.card.glow-hp{border-color:var(--border3);box-shadow:var(--glow-green),var(--shadow)}
+.card.glow-xp{border-color:var(--border);box-shadow:var(--glow-blue),var(--shadow)}
+.card.glow-gold{border-color:rgba(255,215,0,.2);box-shadow:var(--glow-gold),var(--shadow)}
+
+/* card header row */
+.ch{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.ci{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.ci.hp-bg{background:linear-gradient(135deg,rgba(0,255,136,.15),rgba(0,153,80,.08));border:1px solid var(--border3)}
+.ci.xp-bg{background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,96,128,.08));border:1px solid var(--border)}
+.ci.gold-bg{background:linear-gradient(135deg,rgba(255,215,0,.15),rgba(200,168,0,.08));border:1px solid rgba(255,215,0,.2)}
+.ct{font-family:'Exo 2',sans-serif;font-size:15px;font-weight:800;color:var(--text);line-height:1.3}
+.cs{font-size:11px;font-weight:700;color:var(--xp1);margin-top:2px;text-transform:uppercase;letter-spacing:.4px}
+.card p{font-size:13.5px;color:var(--text2);margin-bottom:6px;line-height:1.65}
+.card p strong{color:var(--text)}
+
+/* ═══════════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════════ */
+.sec-hdr{padding:18px 14px 8px;display:flex;align-items:center;gap:10px}
+.sec-icon{width:34px;height:34px;background:rgba(0,212,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.sec-hdr h2{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:var(--text)}
+.sec-hdr p{font-size:11.5px;color:var(--text3);margin-top:1px}
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn{display:block;width:calc(100% - 28px);margin:8px 14px;padding:14px;border-radius:var(--radius);border:none;font-family:'Exo 2',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.btn-hp{background:linear-gradient(135deg,var(--hp3),var(--hp2));color:#000;box-shadow:0 4px 18px rgba(0,255,136,.35)}
+.btn-xp{background:linear-gradient(135deg,var(--xp2),var(--xp1));color:#000;box-shadow:0 4px 18px rgba(0,212,255,.35)}
+.btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold1));color:#000;box-shadow:0 4px 18px rgba(255,215,0,.35)}
+.btn-outline{background:transparent;border:2px solid var(--xp1) !important;color:var(--xp1)}
+.btn:active{transform:scale(.97)}
+
+/* ═══════════════════════════════════════════
+   PILLS / TAGS
+═══════════════════════════════════════════ */
+.pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.pill{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.pill.hp{background:rgba(0,255,136,.1);color:var(--hp1);border:1px solid rgba(0,255,136,.2)}
+.pill.xp{background:rgba(0,212,255,.1);color:var(--xp1);border:1px solid rgba(0,212,255,.2)}
+.pill.gold{background:var(--gold3);color:var(--gold1);border:1px solid rgba(255,215,0,.2)}
+.pill.warn{background:rgba(255,149,0,.1);color:var(--warn);border:1px solid rgba(255,149,0,.2)}
+.pill.red{background:rgba(255,64,96,.1);color:var(--red1);border:1px solid rgba(255,64,96,.2)}
+
+/* ═══════════════════════════════════════════
+   INPUT ROW
+═══════════════════════════════════════════ */
+.input-row{display:flex;gap:8px;margin:0 14px 12px}
+.input{flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.input:focus{border-color:var(--xp1)}
+.input::placeholder{color:var(--text3)}
+.input-btn{padding:12px 16px;background:var(--xp2);color:#fff;border:none;border-radius:var(--radius-sm);font-size:18px;cursor:pointer;font-family:'Exo 2',sans-serif;font-weight:800}
+.input-btn:active{transform:scale(.93)}
+
+/* ═══════════════════════════════════════════
+   STAT BOXES
+═══════════════════════════════════════════ */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 14px 12px}
+.stat-box{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px 8px;text-align:center}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--hp1);line-height:1}
+.stat-num.xp{color:var(--xp1)}
+.stat-num.gold{color:var(--gold1)}
+.stat-lbl{font-size:10px;color:var(--text3);font-weight:600;margin-top:3px}
+.stat-icon{font-size:16px;display:block;margin-bottom:3px}
+
+/* ═══════════════════════════════════════════
+   TIMELINE (Mi Día)
+═══════════════════════════════════════════ */
+.timeline{padding:8px 14px 0;position:relative}
+.tl-spine{position:absolute;left:27px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--xp1),transparent);border-radius:99px}
+.tl-item{display:flex;gap:10px;margin-bottom:10px;animation:fadeUp .3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.tl-dot{
+  width:32px;height:32px;flex-shrink:0;border-radius:50%;
+  border:2px solid var(--border);background:var(--bg2);
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  z-index:1;box-shadow:var(--shadow);transition:all .25s;
+}
+.tl-item.done .tl-dot{background:var(--hp1);border-color:var(--hp2);box-shadow:0 0 12px rgba(0,255,136,.4);font-size:11px}
+.tl-item.done{opacity:.65}
+.tl-body{flex:1;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow)}
+.tl-time{font-size:10px;font-weight:800;color:var(--xp1);text-transform:uppercase;letter-spacing:.5px;font-family:'Orbitron',sans-serif}
+.tl-title{font-size:14px;font-weight:800;color:var(--text);margin:2px 0 4px}
+.tl-desc{font-size:12.5px;color:var(--text2);line-height:1.5}
+.tl-rewards{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.tl-reward{display:flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.tl-reward.xp{background:rgba(0,212,255,.1);color:var(--xp1);border:1px solid rgba(0,212,255,.2)}
+.tl-reward.gold{background:var(--gold3);color:var(--gold1);border:1px solid rgba(255,215,0,.15)}
+.tl-reward.hp{background:rgba(0,255,136,.1);color:var(--hp1);border:1px solid rgba(0,255,136,.15)}
+.tl-btn{margin-top:8px;padding:7px 14px;background:var(--hp2);color:#000;border:none;border-radius:10px;font-size:12px;font-weight:800;font-family:'Exo 2',sans-serif;cursor:pointer;transition:all .2s}
+.tl-btn.done-btn{background:var(--bg3);color:var(--text3)}
+.tl-btn:active{transform:scale(.92)}
+
+/* ═══════════════════════════════════════════
+   RPG HABIT TRACKER
+═══════════════════════════════════════════ */
+.habit-card{
+  background:var(--card);border:1px solid var(--border2);
+  border-radius:var(--radius);padding:14px;margin:0 14px 10px;
+  display:flex;align-items:center;gap:12px;transition:all .2s;
+}
+.habit-card.done{border-color:var(--border3);background:rgba(0,255,136,.04)}
+.habit-emoji{font-size:28px;width:42px;text-align:center;flex-shrink:0}
+.habit-info{flex:1;min-width:0}
+.habit-name{font-size:13px;font-weight:800;color:var(--text)}
+.habit-streak-row{display:flex;align-items:center;gap:8px;margin-top:5px}
+.habit-bar{flex:1;height:5px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.habit-bar-fill{height:100%;background:linear-gradient(90deg,var(--hp2),var(--hp1));border-radius:99px;transition:width .5s ease}
+.habit-streak-lbl{font-size:11px;font-weight:800;color:var(--hp1);white-space:nowrap;font-family:'Orbitron',sans-serif}
+.habit-rewards-row{display:flex;gap:5px;margin-top:5px}
+.habit-check-btn{
+  padding:8px 12px;border-radius:10px;border:2px solid;
+  font-size:13px;font-weight:800;font-family:'Exo 2',sans-serif;cursor:pointer;
+  transition:all .2s;flex-shrink:0;background:transparent;
+}
+.habit-check-btn.undone{border-color:var(--border);color:var(--text3)}
+.habit-check-btn.done-btn{border-color:var(--hp1);color:var(--hp1);background:rgba(0,255,136,.08)}
+.habit-check-btn:active{transform:scale(.88)}
+
+/* ═══════════════════════════════════════════
+   STREAKS VISUALIZER (5AM)
+═══════════════════════════════════════════ */
+.streak-calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:12px 0}
+.sc-day{
+  aspect-ratio:1;border-radius:6px;background:var(--bg3);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text3);
+}
+.sc-day.hit{background:linear-gradient(135deg,var(--hp3),var(--hp2));color:#000;border-color:var(--hp1);box-shadow:0 0 8px rgba(0,255,136,.3)}
+.sc-day.today{border-color:var(--gold1);box-shadow:0 0 8px rgba(255,215,0,.3)}
+
+/* Fire streak counter */
+.streak-hero{
+  text-align:center;padding:20px;
+  background:linear-gradient(135deg,rgba(255,64,96,.06),rgba(255,149,0,.04));
+  border:1px solid rgba(255,64,96,.15);border-radius:var(--radius);margin:0 14px 12px;
+}
+.streak-fire{font-size:48px;animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.streak-num{font-family:'Orbitron',sans-serif;font-size:36px;font-weight:900;color:var(--warn);line-height:1}
+.streak-sub{font-size:12px;color:var(--text3);margin-top:4px}
+
+/* ═══════════════════════════════════════════
+   WEIGHT PROGRESS HERO
+═══════════════════════════════════════════ */
+.weight-hero{
+  background:linear-gradient(135deg,rgba(0,255,136,.05),var(--bg2));
+  border:1px solid var(--border3);border-radius:var(--radius);
+  padding:20px;margin:0 14px 12px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.weight-hero::before{
+  content:'';position:absolute;top:-30px;right:-30px;
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(0,255,136,.08) 0%,transparent 70%);
+}
+.wh-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-family:'Orbitron',sans-serif}
+.wh-nums{display:flex;align-items:baseline;justify-content:center;gap:6px}
+.wh-current{font-family:'Orbitron',sans-serif;font-size:48px;font-weight:900;color:var(--hp1);line-height:1}
+.wh-unit{font-size:18px;color:var(--text3)}
+.wh-arrow{font-size:22px;color:var(--hp2)}
+.wh-target{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--text2)}
+.wh-bar-wrap{margin:14px 0 8px}
+.wh-bar{height:14px;background:var(--bg3);border-radius:99px;overflow:hidden;position:relative}
+.wh-bar-fill{height:100%;background:linear-gradient(90deg,var(--hp3),var(--hp1));border-radius:99px;transition:width 1s cubic-bezier(.34,1.2,.64,1);position:relative}
+.wh-bar-fill::after{
+  content:'';position:absolute;top:0;right:0;bottom:0;width:20px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3));
+}
+.wh-markers{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);font-weight:600}
+.wh-milestones{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.wh-ms{background:var(--card);border-radius:var(--radius-sm);padding:10px 6px;text-align:center}
+.wh-ms-num{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:var(--xp1)}
+.wh-ms-lbl{font-size:10px;color:var(--text3);font-weight:600;margin-top:2px}
+
+/* Kilos counter visual */
+.kg-boxes{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:12px 0}
+.kg-box{
+  aspect-ratio:1;border-radius:6px;background:var(--bg3);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;
+  color:var(--text3);transition:all .3s;
+}
+.kg-box.lost{background:linear-gradient(135deg,var(--hp3),var(--hp2));color:#000;border-color:var(--hp1);box-shadow:0 0 6px rgba(0,255,136,.3)}
+.kg-box.next{border-color:var(--gold1);color:var(--gold1);animation:glowPulse 1.5s ease infinite}
+@keyframes glowPulse{0%,100%{box-shadow:0 0 4px rgba(255,215,0,.2)}50%{box-shadow:0 0 12px rgba(255,215,0,.5)}}
+
+/* ═══════════════════════════════════════════
+   SHOP / REWARDS
+═══════════════════════════════════════════ */
+.shop-item{
+  background:var(--card);border:1px solid rgba(255,215,0,.15);
+  border-radius:var(--radius);padding:14px;margin:0 14px 10px;
+  display:flex;align-items:center;gap:12px;transition:all .2s;
+}
+.shop-item:active{transform:scale(.98)}
+.shop-emoji{font-size:28px;width:44px;text-align:center;flex-shrink:0}
+.shop-info{flex:1}
+.shop-name{font-size:14px;font-weight:800;color:var(--text)}
+.shop-desc{font-size:12px;color:var(--text3);margin-top:2px}
+.shop-cost{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:900;color:var(--gold1);font-family:'Orbitron',sans-serif;flex-shrink:0}
+.shop-btn{
+  padding:8px 14px;background:linear-gradient(135deg,var(--gold2),var(--gold1));
+  color:#000;border:none;border-radius:10px;font-size:12px;font-weight:800;
+  font-family:'Exo 2',sans-serif;cursor:pointer;transition:all .2s;
+}
+.shop-btn:active{transform:scale(.9)}
+.shop-btn:disabled{background:var(--bg3);color:var(--text3);box-shadow:none}
+
+/* ═══════════════════════════════════════════
+   MISSIONS (Logos Group)
+═══════════════════════════════════════════ */
+.mission-card{
+  background:var(--card);border:1px solid rgba(255,215,0,.12);
+  border-radius:var(--radius);padding:16px;margin:0 14px 10px;
+  position:relative;overflow:hidden;
+}
+.mission-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold1),transparent);
+}
+.mission-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.mission-icon{font-size:26px;flex-shrink:0}
+.mission-title{font-size:14px;font-weight:800;color:var(--text)}
+.mission-type{font-size:10px;font-weight:700;color:var(--gold1);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;font-family:'Orbitron',sans-serif}
+.mission-desc{font-size:12.5px;color:var(--text2);margin-bottom:10px;line-height:1.5}
+.mission-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mission-rewards{display:flex;gap:6px}
+.mission-btn{
+  padding:7px 14px;background:linear-gradient(135deg,rgba(255,215,0,.2),rgba(200,168,0,.1));
+  border:1px solid rgba(255,215,0,.3);color:var(--gold1);border-radius:10px;
+  font-size:11.5px;font-weight:800;font-family:'Exo 2',sans-serif;cursor:pointer;transition:all .2s;
+}
+.mission-btn.completed{background:rgba(0,255,136,.1);border-color:var(--hp2);color:var(--hp1)}
+.mission-btn:active{transform:scale(.92)}
+
+/* ═══════════════════════════════════════════
+   AUDIO TIME BLOCKS indicator
+═══════════════════════════════════════════ */
+.time-block-now{
+  background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,212,255,.02));
+  border:1px solid var(--xp2);border-radius:var(--radius);
+  padding:14px;margin:0 14px 12px;display:flex;align-items:center;gap:12px;
+}
+.tbn-indicator{width:12px;height:12px;border-radius:50%;background:var(--xp1);box-shadow:0 0 10px var(--xp1);animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tbn-text{flex:1}
+.tbn-title{font-size:13px;font-weight:800;color:var(--xp1)}
+.tbn-next{font-size:11px;color:var(--text3);margin-top:2px}
+.tbn-sound-btn{padding:6px 12px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.25);border-radius:20px;color:var(--xp1);font-size:12px;font-weight:700;font-family:'Exo 2',sans-serif;cursor:pointer}
+
+/* ═══════════════════════════════════════════
+   GLUCOSE / KM CHARTS
+═══════════════════════════════════════════ */
+.chart-wrap{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:16px;margin:0 14px 12px}
+.chart-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.chart-bars{display:flex;gap:4px;align-items:flex-end;height:80px}
+.chart-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.chart-bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .5s ease}
+.chart-lbl{font-size:9px;color:var(--text3);font-weight:700}
+.chart-val{font-size:9px;color:var(--text3)}
+
+/* Gluc cards */
+.gluc-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 14px 12px}
+.gluc-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);padding:14px;text-align:center}
+.gluc-val{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;line-height:1}
+.gluc-val.normal{color:var(--hp1)}
+.gluc-val.pre{color:var(--warn)}
+.gluc-val.high{color:var(--red1)}
+.gluc-lbl{font-size:10px;color:var(--text3);font-weight:600;margin-top:3px;text-transform:uppercase}
+.gluc-status{font-size:10px;font-weight:700;margin-top:4px;padding:2px 8px;border-radius:20px;display:inline-block}
+.gluc-status.normal{background:rgba(0,255,136,.12);color:var(--hp1)}
+.gluc-status.pre{background:rgba(255,149,0,.12);color:var(--warn)}
+.gluc-status.high{background:rgba(255,64,96,.12);color:var(--red1)}
+
+/* ═══════════════════════════════════════════
+   WEEKLY PLAN
+═══════════════════════════════════════════ */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:0 14px 12px}
+.wday{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 3px;text-align:center;cursor:pointer;transition:all .2s}
+.wday.active-day{border-color:var(--xp1);background:rgba(0,212,255,.06);box-shadow:0 0 10px rgba(0,212,255,.15)}
+.wday.completed{border-color:var(--hp1);background:rgba(0,255,136,.06)}
+.wday.rest{opacity:.45}
+.wd-name{font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase}
+.wd-icon{font-size:16px;margin:3px 0}
+.wd-type{font-size:8.5px;font-weight:700;color:var(--xp1)}
+
+/* ═══════════════════════════════════════════
+   SLEEP TRACKER
+═══════════════════════════════════════════ */
+.sleep-blocks{display:flex;gap:6px;margin:12px 0}
+.sh-block{flex:1;height:36px;background:var(--bg3);border-radius:8px;border:2px solid var(--border2);cursor:pointer;transition:all .2s}
+.sh-block.filled{background:linear-gradient(135deg,var(--xp2),var(--xp1));border-color:var(--xp1)}
+.sh-block.active{box-shadow:0 0 12px rgba(0,212,255,.4)}
+
+/* ═══════════════════════════════════════════
+   SERIES DOTS
+═══════════════════════════════════════════ */
+.series-track{display:flex;gap:6px;align-items:center;margin:10px 0}
+.series-lbl{font-size:11px;font-weight:700;color:var(--text3);flex-shrink:0;min-width:50px}
+.series-dots{display:flex;gap:5px}
+.sdot{
+  width:30px;height:30px;border-radius:8px;border:2px solid var(--border);
+  background:var(--bg2);font-size:12px;font-weight:800;color:var(--text3);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;
+}
+.sdot.done{background:var(--hp1);border-color:var(--hp2);color:#000;box-shadow:0 0 8px rgba(0,255,136,.35)}
+.sdot:active{transform:scale(.86)}
+
+/* ═══════════════════════════════════════════
+   NOTIF ITEMS
+═══════════════════════════════════════════ */
+.notif-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-sm);margin:0 14px 8px}
+.notif-icon{font-size:22px;width:36px;text-align:center;flex-shrink:0}
+.notif-info{flex:1}
+.notif-name{font-size:13px;font-weight:700;color:var(--text)}
+.notif-time{font-size:11px;color:var(--xp1);font-weight:600;margin-top:2px}
+.toggle{width:44px;height:24px;border-radius:99px;background:var(--bg3);border:2px solid var(--border);cursor:pointer;position:relative;transition:all .25s;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text3);transition:all .25s}
+.toggle.on{background:var(--hp2);border-color:var(--hp1)}
+.toggle.on::after{left:calc(100% - 18px);background:#fff}
+
+/* ═══════════════════════════════════════════
+   BUBBLE / QUOTE
+═══════════════════════════════════════════ */
+.bubble{
+  background:linear-gradient(135deg,var(--card),var(--card2));
+  border:1px solid var(--border);
+  border-radius:0 var(--radius) var(--radius) var(--radius);
+  padding:16px;margin:14px;position:relative;font-size:13.5px;color:var(--text2);
+}
+.bubble::before{content:'';position:absolute;top:-1px;left:-1px;width:14px;height:14px;background:var(--xp2);clip-path:polygon(0 0,100% 0,0 100%);border-radius:2px 0 0 0}
+.who{font-size:10.5px;font-weight:800;color:var(--xp1);margin-bottom:6px;text-transform:uppercase;letter-spacing:.6px}
+.bubble strong{color:var(--text)}
+
+.quote{
+  background:linear-gradient(135deg,rgba(0,212,255,.05),var(--bg2));
+  border-left:3px solid var(--xp1);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;
+  padding:12px 16px;margin:0 14px 14px;
+  font-family:'Playfair Display',serif;
+  font-size:14px;color:var(--text);line-height:1.55;
+}
+.quote-author{font-family:'Exo 2',sans-serif;font-size:11px;color:var(--xp1);font-weight:700;margin-top:8px;display:block}
+
+/* ═══════════════════════════════════════════
+   EX CARD
+═══════════════════════════════════════════ */
+.ex-card{background:var(--card);border:1px solid var(--border2);border-radius:var(--radius);margin:0 14px 12px;overflow:hidden}
+.ex-header{display:flex;align-items:center;gap:10px;padding:14px 14px 10px}
+.ex-num{width:30px;height:30px;background:var(--xp2);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;font-family:'Orbitron',sans-serif;flex-shrink:0}
+.ex-name{font-size:15px;font-weight:800;color:var(--text)}
+.ex-reps{font-size:11px;color:var(--xp1);font-weight:700;margin-top:2px}
+.ex-body{padding:0 14px 14px;font-size:13px;color:var(--text2)}
+.ex-tip{background:rgba(0,212,255,.07);border-left:2px solid var(--xp1);padding:8px 12px;border-radius:0 8px 8px 0;margin-top:10px;font-size:12.5px;color:var(--xp1);font-weight:600}
+
+/* ═══════════════════════════════════════════
+   SUPLEMENT LIST
+═══════════════════════════════════════════ */
+.supp-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border2)}
+.supp-item:last-child{border-bottom:none}
+.supp-icon{font-size:22px;width:34px;text-align:center;flex-shrink:0}
+.supp-name{font-size:13px;font-weight:800;color:var(--text);flex:1}
+.supp-dose{font-size:11px;color:var(--xp1);font-weight:700}
+.supp-time{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ═══════════════════════════════════════════
+   CONFIG INPUTS
+═══════════════════════════════════════════ */
+.cfg-row{display:flex;flex-direction:column;gap:4px;margin:0 14px 12px}
+.cfg-lbl{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px}
+
+/* ═══════════════════════════════════════════
+   MISC UTILITIES
+═══════════════════════════════════════════ */
+.tip{background:rgba(0,212,255,.06);border-left:2px solid var(--xp1);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:10px 12px;margin-top:10px;font-size:12.5px;color:var(--xp1);font-weight:600}
+.science{background:var(--bg2);border-radius:var(--radius-sm);padding:10px 12px;margin-top:8px}
+.science-lbl{font-size:10px;font-weight:800;color:var(--hp1);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.divider{height:1px;background:var(--border2);margin:4px 14px 12px}
+.spacer{height:16px}
+
+/* Scan line effect */
+@keyframes scanLine{from{transform:translateY(-100%)}to{transform:translateY(100vh)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ████ LEVEL UP OVERLAY ████ -->
+<div class="lvlup-overlay" id="lvlup-overlay">
+  <div class="lvlup-box">
+    <span class="lvlup-emoji">⚔️</span>
+    <div class="lvlup-title">¡NIVEL <span id="lvlup-num">2</span>!</div>
+    <div class="lvlup-sub" id="lvlup-msg">¡Desbloqueaste nuevas habilidades!</div>
+    <button class="lvlup-btn" onclick="closeLevelUp()">⚡ ¡SEGUIR ADELANTE!</button>
+  </div>
+</div>
+
+<!-- ████ TOAST ████ -->
+<div class="toast" id="toast"></div>
+
+<!-- ████ REMINDER BANNER ████ -->
+<div class="reminder-banner hide" id="reminder-banner">
+  <span class="rb-icon" id="rb-icon">⏰</span>
+  <span class="rb-text" id="rb-text">Recordatorio</span>
+  <button class="rb-close" onclick="document.getElementById('reminder-banner').classList.add('hide')">✕</button>
+</div>
+
+<!-- ████████ HEADER ████████ -->
+<div class="header">
+  <div class="hdr-top">
+    <!-- Avatar -->
+    <div class="avatar-wrap" onclick="go('inicio',document.querySelector('.nb'))">
+      <div class="avatar-ring" id="avatar-ring">
+        <div class="avatar-inner" id="avatar-emoji">⚔️</div>
+      </div>
+      <div class="avatar-lvl" id="avatar-lvl">Nv.1</div>
+    </div>
+    <!-- Stats -->
+    <div class="hdr-stats">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="hdr-name" id="hdr-name">GUERRERO</div>
+          <div class="hdr-class">Logos Group · Royal Prestige</div>
+        </div>
+        <div class="hdr-gold" onclick="go('tienda',document.querySelectorAll('.nb')[8])">
+          🪙 <span id="hdr-gold-val">0</span>
+        </div>
+      </div>
+      <!-- HP -->
+      <div class="bar-row">
+        <div class="bar-lbl" style="color:var(--hp1)">HP</div>
+        <div class="bar-track"><div class="bar-fill hp" id="hp-bar" style="width:100%"></div></div>
+        <div class="bar-val" id="hp-val">100/100</div>
+      </div>
+      <!-- XP -->
+      <div class="bar-row">
+        <div class="bar-lbl" style="color:var(--xp1)">XP</div>
+        <div class="bar-track"><div class="bar-fill xp" id="xp-bar" style="width:0%"></div></div>
+        <div class="bar-val" id="xp-val">0/200</div>
+      </div>
+    </div>
+  </div>
+  <!-- Progress summary -->
+  <div class="hdr-progress">
+    <div>
+      <div class="hdr-score-num" id="hdr-pct">0%</div>
+      <div class="hdr-score-sub">del día</div>
+    </div>
+    <div class="hdr-score-msg" id="hdr-msg">¡Empezá tu día, chamigo! 💪</div>
+    <div style="font-size:11px;color:var(--text3);text-align:right" id="hdr-day"></div>
+  </div>
+</div>
+
+<!-- ████████ NAV ████████ -->
+<div class="nav" id="nav">
+  <button class="nb active" onclick="go('inicio',this)">🏠 Base</button>
+  <button class="nb" onclick="go('mi-dia',this)">📅 Mi Día</button>
+  <button class="nb" onclick="go('habitos',this)">🔥 Hábitos</button>
+  <button class="nb" onclick="go('misiones',this)">⚔️ Misiones</button>
+  <button class="nb" onclick="go('salud',this)">❤️ Salud</button>
+  <button class="nb" onclick="go('kettlebell',this)">🏋️ KB</button>
+  <button class="nb" onclick="go('nutricion',this)">🥩 Keto</button>
+  <button class="nb" onclick="go('glucosa',this)">🩸 Glucosa</button>
+  <button class="nb" onclick="go('tienda',this)">🛒 Tienda</button>
+  <button class="nb" onclick="go('ajustes',this)">⚙️ Config</button>
+</div>
+
+<!-- ██████████████████████████████████████
+     SCREEN: INICIO / BASE
+██████████████████████████████████████ -->
+<div id="inicio" class="screen active">
+
+  <!-- Time Block Now -->
+  <div class="time-block-now" id="time-block-now">
+    <div class="tbn-indicator"></div>
+    <div class="tbn-text">
+      <div class="tbn-title" id="tbn-title">⏰ Iniciando...</div>
+      <div class="tbn-next" id="tbn-next">Calculando bloque actual</div>
+    </div>
+    <button class="tbn-sound-btn" onclick="playAlertSound('chime')">🔔 Sonar</button>
+  </div>
+
+  <div class="bubble">
+    <div class="who">⚔️ Coach Logos · Centro de Comando</div>
+    ¡Guerrero! Cada hábito completado hoy suma XP, oro y mantiene tu HP al máximo. <strong>Meta: bajar 30kg, construir el negocio, y dominar la mañana.</strong> Este es tu centro de comando. Empezemos.
+  </div>
+
+  <div class="quote">
+    "La testosterona no se acaba con la edad. Se acaba con la rendición. Y vos hoy elegís no rendirte."
+    <span class="quote-author">— Coach Logos · Mbarete RPG</span>
+  </div>
+
+  <!-- Stats grid -->
+  <div class="stats-grid">
+    <div class="stat-box"><span class="stat-icon">🔥</span><div class="stat-num" id="si-days">0</div><div class="stat-lbl">Días activos</div></div>
+    <div class="stat-box"><span class="stat-icon">✅</span><div class="stat-num xp" id="si-done">0</div><div class="stat-lbl">Completados hoy</div></div>
+    <div class="stat-box"><span class="stat-icon">🪙</span><div class="stat-num gold" id="si-gold">0</div><div class="stat-lbl">Oro total</div></div>
+  </div>
+
+  <!-- Weight hero -->
+  <div class="weight-hero">
+    <div class="wh-label">⚔️ Kilos por Vencer</div>
+    <div class="wh-nums">
+      <div class="wh-current" id="wh-current">110</div>
+      <div class="wh-unit">kg</div>
+      <div class="wh-arrow">→</div>
+      <div class="wh-target">80 kg</div>
+    </div>
+    <div class="wh-bar-wrap">
+      <div class="wh-bar"><div class="wh-bar-fill" id="wh-fill" style="width:0%"></div></div>
+    </div>
+    <div class="wh-markers"><span id="wh-lost-lbl">0 kg bajados</span><span>Meta: 30 kg 🎯</span></div>
+    <div class="kg-boxes" id="kg-boxes"></div>
+    <div class="wh-milestones">
+      <div class="wh-ms"><div class="wh-ms-num" id="wh-bmi">—</div><div class="wh-ms-lbl">IMC actual</div></div>
+      <div class="wh-ms"><div class="wh-ms-num" id="wh-remain">30</div><div class="wh-ms-lbl">kg restantes</div></div>
+      <div class="wh-ms"><div class="wh-ms-num" id="wh-weeks">—</div><div class="wh-ms-lbl">semanas est.</div></div>
+    </div>
+  </div>
+
+  <!-- Peso input -->
+  <div class="input-row">
+    <input type="number" id="kg-input" class="input" placeholder="Mi peso actual (kg)" step="0.5" min="70" max="120">
+    <button class="input-btn" onclick="saveWeight()">💾</button>
+  </div>
+
+  <!-- Habit streaks home -->
+  <div class="sec-hdr">
+    <div class="sec-icon">🔥</div>
+    <div><h2>Rachas activas</h2><p>Tus hábitos del día</p></div>
+  </div>
+  <div id="habit-streaks-home"></div>
+
+  <button class="btn btn-xp" onclick="go('mi-dia',document.querySelectorAll('.nb')[1])">📅 Ver mi día completo</button>
+  <button class="btn btn-outline" onclick="go('misiones',document.querySelectorAll('.nb')[3])">⚔️ Ver misiones Logos Group</button>
+
+</div><!-- /inicio -->
+
+<!-- ██████████████████████████████████████
+     SCREEN: MI DÍA
+██████████████████████████████████████ -->
+<div id="mi-dia" class="screen">
+  <div class="bubble">
+    <div class="who">📅 Time Blocking · Tu Día Perfecto</div>
+    Cada bloque de tiempo vale XP y oro. Si no marcás los dailies antes de las <strong>11 PM, tu HP baja</strong>. Marcá cada actividad al completarla, guerrero.
+  </div>
+  <div class="timeline" id="timeline">
+    <div class="tl-spine"></div>
+  </div>
+</div>
+
+<!-- ██████████████████████████████████████
+     SCREEN: HÁBITOS
+██████████████████████████████████████ -->
+<div id="habitos" class="screen">
+
+  <!-- 5AM Streak Hero -->
+  <div class="sec-hdr">
+    <div class="sec-icon">🌅</div>
+    <div><h2>Racha 5 AM</h2><p>Despertarte temprano = +50 XP/día</p></div>
+  </div>
+
+  <div class="streak-hero">
+    <div class="streak-fire">🔥</div>
+    <div class="streak-num" id="streak-5am-num">0</div>
+    <div class="streak-sub">días consecutivos despertándote a las 5 AM</div>
+    <div style="margin-top:10px">
+      <button class="btn-gold" style="padding:10px 24px;background:linear-gradient(135deg,var(--gold2),var(--gold1));color:#000;border:none;border-radius:30px;font-size:13px;font-weight:800;font-family:'Exo 2',sans-serif;cursor:pointer;display:inline-block" onclick="mark5AM()">🌅 ¡Me desperté a las 5 AM!</button>
+    </div>
+  </div>
+
+  <!-- Calendar 5AM -->
+  <div class="card">
+    <div class="ct" style="margin-bottom:10px">📅 Historial de madrugadas</div>
+    <div class="streak-calendar" id="streak-calendar-5am"></div>
+    <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:6px">Últimas 4 semanas · Verde = cumplido</div>
+  </div>
+
+  <div class="sec-hdr">
+    <div class="sec-icon">⚡</div>
+    <div><h2>Hábitos Diarios</h2><p>Cada uno suma XP, oro y HP</p></div>
+  </div>
+  <div id="habit-tracker"></div>
+
+  <!-- Sueño -->
+  <div class="card" style="margin-top:4px">
+    <div class="ch"><div class="ci xp-bg">😴</div><div><div class="ct">Sueño</div><div class="cs">+30 XP si ≥7h · Testosterona +</div></div></div>
+    <div class="sleep-blocks" id="sleep-hours"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+      <div style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;color:var(--xp1)" id="sleep-val">—</div>
+      <div style="text-align:right">
+        <div style="font-size:12px;font-weight:700;color:var(--text)" id="sleep-status">Tocá para registrar</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px" id="sleep-tip">ZMA + Magnesio 30 min antes</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /habitos -->
+
+<!-- ██████████████████████████████████████
+     SCREEN: MISIONES (Logos Group)
+██████████████████████████████████████ -->
+<div id="misiones" class="screen">
+  <div class="bubble">
+    <div class="who">⚔️ Logos Group · Royal Prestige · Goya</div>
+    Las misiones especiales son las tareas de negocio que hacen crecer tu equipo y tus ingresos. Cada misión completada = oro + XP + progreso real.
+  </div>
+
+  <div class="sec-hdr">
+    <div class="sec-icon">👥</div>
+    <div><h2>Reclutamiento</h2><p>Construí tu equipo en Goya</p></div>
+  </div>
+  <div id="missions-recruit"></div>
+
+  <div class="sec-hdr">
+    <div class="sec-icon">📱</div>
+    <div><h2>Contenido Digital</h2><p>Presencia y marca personal</p></div>
+  </div>
+  <div id="missions-content"></div>
+
+  <div class="sec-hdr">
+    <div class="sec-icon">💰</div>
+    <div><h2>Ventas Royal Prestige</h2><p>Demostraciones y seguimiento</p></div>
+  </div>
+  <div id="missions-sales"></div>
+
+  <!-- Add custom mission -->
+  <div class="card glow-gold" style="margin-top:8px">
+    <div class="ct" style="margin-bottom:10px">➕ Nueva Misión Especial</div>
+    <input type="text" id="mission-new-name" class="input" placeholder="Nombre de la misión" style="margin-bottom:8px;width:100%">
+    <div style="display:flex;gap:8px">
+      <select id="mission-new-type" class="input" style="flex:1">
+        <option value="recruit">Reclutamiento</option>
+        <option value="content">Contenido</option>
+        <option value="sales">Ventas</option>
+      </select>
+      <button class="input-btn" onclick="addCustomMission()">➕</button>
+    </div>
+  </div>
+</div><!-- /misiones -->
+
+<!-- ██████████████████████████████████████
+     SCREEN: SALUD
+██████████████████████████████████████ -->
+<div id="salud" class="screen">
+  <div class="sec-hdr">
+    <div class="sec-icon">❤️</div>
+    <div><h2>Centro de Salud</h2><p>Tu transformación de 110kg → 80kg</p></div>
+  </div>
+
+  <!-- Weight tracking -->
+  <div class="weight-hero" style="margin-bottom:12px">
+    <div class="wh-label">📊 Registro de Peso</div>
+    <div class="wh-nums">
+      <div class="wh-current" id="salud-current">110</div>
+      <div class="wh-unit">kg</div>
+    </div>
+    <div class="wh-bar-wrap">
+      <div class="wh-bar"><div class="wh-bar-fill" id="salud-wh-fill" style="width:0%"></div></div>
+    </div>
+    <div class="wh-markers"><span id="salud-lost-lbl">0 kg bajados</span><span>80 kg 🎯</span></div>
+    <div class="kg-boxes" id="kg-boxes-2"></div>
+  </div>
+
+  <div class="input-row">
+    <input type="number" id="kg-input-salud" class="input" placeholder="Mi peso hoy (kg)" step="0.1" min="70" max="120">
+    <button class="input-btn" onclick="saveWeightSalud()">📍</button>
+  </div>
+
+  <!-- Historial de pesos -->
+  <div class="chart-wrap">
+    <div class="chart-title">📉 Progreso de Peso (últimos registros)</div>
+    <div class="chart-bars" id="weight-chart-bars"></div>
+  </div>
+
+  <!-- Caminata -->
+  <div class="sec-hdr">
+    <div class="sec-icon">🚶</div>
+    <div><h2>Caminata Semanal</h2><p>30-45 min/día = zona de quema de grasa</p></div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-title">📊 Kilómetros esta semana</div>
+    <div class="chart-bars" id="km-bars"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding-top:10px;border-top:1px solid var(--border2);margin-top:10px">
+      <div style="text-align:center"><div class="wh-ms-num" id="km-week-total">0</div><div style="font-size:10px;color:var(--text3)">km totales</div></div>
+      <div style="text-align:center"><div class="wh-ms-num" id="km-best">0</div><div style="font-size:10px;color:var(--text3)">km mejor día</div></div>
+      <div style="text-align:center"><div class="wh-ms-num" id="km-days-active">0</div><div style="font-size:10px;color:var(--text3)">días activos</div></div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <input type="number" id="km-in" class="input" placeholder="Km caminados hoy" step="0.1" min="0" max="50">
+    <button class="input-btn" onclick="addKm()">🚶</button>
+  </div>
+
+  <!-- Glucosa -->
+  <div class="sec-hdr">
+    <div class="sec-icon">🩸</div>
+    <div><h2>Glucosa</h2><p>Control de prediabetes</p></div>
+  </div>
+
+  <div class="gluc-row">
+    <div class="gluc-card">
+      <div class="gluc-val normal" id="gluc-ayunas-val">—</div>
+      <div class="gluc-lbl">En ayunas</div>
+      <div class="gluc-status normal" id="gluc-ayunas-status">Sin datos</div>
+    </div>
+    <div class="gluc-card">
+      <div class="gluc-val normal" id="gluc-post-val">—</div>
+      <div class="gluc-lbl">Post-prandial</div>
+      <div class="gluc-status normal" id="gluc-post-status">Sin datos</div>
+    </div>
+  </div>
+
+  <div class="input-row">
+    <input type="number" id="gluc-ay-in" class="input" placeholder="Glucosa en ayunas (mg/dL)" min="50" max="400">
+    <input type="number" id="gluc-post-in" class="input" placeholder="Post-comida" min="50" max="500">
+  </div>
+  <button class="btn btn-hp" onclick="saveGlucosa()">🩸 Registrar glucosa</button>
+
+  <div class="chart-wrap">
+    <div class="chart-title">📈 Historial glucosa en ayunas</div>
+    <div class="chart-bars" id="gluc-chart"></div>
+  </div>
+
+</div><!-- /salud -->
+
+<!-- ██████████████████████████████████████
+     SCREEN: KETTLEBELL
+██████████████████████████████████████ -->
+<div id="kettlebell" class="screen">
+  <div class="bubble">
+    <div class="who">🏋️ Kettlebell Training · Protocolo Guerrero</div>
+    Las pesas rusas activan <strong>todo el cuerpo</strong>, generan el mayor pico hormonal y queman grasa sin dañar las rodillas. <strong>+150 XP + 50 oro</strong> por sesión completa.
+  </div>
+
+  <div class="quote">
+    "Una kettlebell hace lo que 10 máquinas no pueden: despertarte por dentro."
+    <span class="quote-author">— Coach Logos</span>
+  </div>
+
+  <div class="card glow-hp">
+    <div class="ch"><div class="ci hp-bg">⚖️</div><div><div class="ct">Peso recomendado</div><div class="cs">Para empezar desde cero</div></div></div>
+    <p><strong>Principiante (mes 1):</strong> 8 kg — Aprendé el movimiento.</p>
+    <p><strong>Intermedio (mes 2-3):</strong> 12 kg — Aumentá volumen.</p>
+    <p><strong>Avanzado (mes 4+):</strong> 16 kg — Máxima respuesta hormonal.</p>
+    <div class="tip">💡 Los movimientos KB son en bisagra de cadera, NO en rodilla. Son MÁS seguros que las sentadillas con barra.</div>
+  </div>
+
+  <!-- Ejercicios -->
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-num">1</div>
+      <div><div class="ex-name">Kettlebell Swing</div><div class="ex-reps">4 series × 15-20 reps · +20 XP</div></div>
+    </div>
+    <div class="ex-body">
+      <p>El rey de los ejercicios KB. Activa glúteos, isquiotibiales, core y espalda en un movimiento explosivo. Genera el mayor pico de testosterona y GH.</p>
+      <div class="series-track">
+        <div class="series-lbl">Series</div>
+        <div class="series-dots" id="series-swing"></div>
+      </div>
+      <div class="ex-tip">💡 Empuje las caderas hacia adelante, no agaches. La fuerza viene de las caderas.</div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-num">2</div>
+      <div><div class="ex-name">Goblet Squat</div><div class="ex-reps">4 series × 12 reps · +15 XP</div></div>
+    </div>
+    <div class="ex-body">
+      <p>Sentadilla profunda que activa cuádriceps, glúteos y core. El peso delante corrige automáticamente la postura.</p>
+      <div class="series-track">
+        <div class="series-lbl">Series</div>
+        <div class="series-dots" id="series-goblet"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-num">3</div>
+      <div><div class="ex-name">Romanian Deadlift</div><div class="ex-reps">3 series × 12 reps · +15 XP</div></div>
+    </div>
+    <div class="ex-body">
+      <p>Fortalece cadena posterior (isquiotibiales + glúteos + espalda baja). Clave para la postura y la testosterona.</p>
+      <div class="series-track">
+        <div class="series-lbl">Series</div>
+        <div class="series-dots" id="series-rdl"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-num">4</div>
+      <div><div class="ex-name">Press Militar</div><div class="ex-reps">3 series × 10 reps · +15 XP</div></div>
+    </div>
+    <div class="ex-body">
+      <p>Hombros, tríceps y core. Mejor que la barra para la salud del hombro a los 55+.</p>
+      <div class="series-track">
+        <div class="series-lbl">Series</div>
+        <div class="series-dots" id="series-press"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-num">5</div>
+      <div><div class="ex-name">Single Arm Row</div><div class="ex-reps">3 series × 12 reps/lado · +15 XP</div></div>
+    </div>
+    <div class="ex-body">
+      <p>Espalda alta (dorsal, romboides) y bíceps. Corrige la postura encorvada.</p>
+      <div class="series-track">
+        <div class="series-lbl">Series</div>
+        <div class="series-dots" id="series-row"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex-card">
+    <div class="ex-header">
+      <div class="ex-num">6</div>
+      <div><div class="ex-name">Farmer's Carry</div><div class="ex-reps">4 × 30m · +20 XP</div></div>
+    </div>
+    <div class="ex-body">
+      <p>Caminá 30m sosteniendo la KB. Core, agarre y resistencia cardiovascular. Quema grasa incluso en reposo.</p>
+      <div class="series-track">
+        <div class="series-lbl">Vueltas</div>
+        <div class="series-dots" id="series-carry"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-hp" onclick="completarEntrenamiento()">🏋️ ¡Entrenamiento completo! +150XP +50🪙</button>
+
+</div><!-- /kettlebell -->
+
+<!-- ██████████████████████████████████████
+     SCREEN: NUTRICION KETO
+██████████████████████████████████████ -->
+<div id="nutricion" class="screen">
+  <div class="bubble">
+    <div class="who">🥩 Nutrición Cetogénica · Plan Hormonal</div>
+    La dieta keto reduce la glucosa, quema grasa visceral y maximiza la testosterona. <strong>Objetivo: &lt;20g carbs/día.</strong>
+  </div>
+
+  <div class="card glow-hp">
+    <div class="ch"><div class="ci hp-bg">🥩</div><div><div class="ct">Macros Diarios</div><div class="cs">Para 110kg → pérdida de grasa</div></div></div>
+    <p><strong>Proteínas:</strong> 160-180g/día (1.5g × kg de masa magra)</p>
+    <p><strong>Grasas:</strong> 120-140g/día (aguacate, aceite de oliva, huevos)</p>
+    <p><strong>Carbohidratos:</strong> &lt;20g/día netos</p>
+    <p><strong>Calorías:</strong> ~1,800-2,000 kcal/día para déficit controlado</p>
+    <div class="pills">
+      <span class="pill hp">↑ Cetonas</span>
+      <span class="pill xp">↓ Insulina</span>
+      <span class="pill gold">↑ Testosterona</span>
+      <span class="pill warn">↓ Inflamación</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="ci gold-bg">📋</div><div><div class="ct">Alimentos estrella</div><div class="cs">Keto + Anti-inflamatorio</div></div></div>
+    <p><strong>Proteínas:</strong> Carne de res, pollo, pescado, huevos (3-4/día)</p>
+    <p><strong>Grasas saludables:</strong> Aceite de oliva, palta, aceite de coco, mantequilla</p>
+    <p><strong>Verduras:</strong> Espinaca, brócoli, coliflor, lechuga, pepino</p>
+    <p><strong>Evitar:</strong> Pan, arroz, papa, azúcar, frutas dulces, cerveza</p>
+    <div class="tip">💡 El primer ayuno intermitente (16:8) puede empezar la semana 3. No antes.</div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><div class="ci xp-bg">🌿</div><div><div class="ct">Suplementos clave</div><div class="cs">Stack hormonal 55+</div></div></div>
+    <div class="supp-item"><div class="supp-icon">🌊</div><div class="supp-name">Omega-3</div><div><div class="supp-dose">2g/día</div><div class="supp-time">Con las comidas</div></div></div>
+    <div class="supp-item"><div class="supp-icon">☀️</div><div class="supp-name">Vitamina D3+K2</div><div><div class="supp-dose">5,000 UI/día</div><div class="supp-time">Con desayuno</div></div></div>
+    <div class="supp-item"><div class="supp-icon">🌙</div><div class="supp-name">ZMA (Zinc+Mg)</div><div><div class="supp-dose">1 dosis</div><div class="supp-time">30 min antes de dormir</div></div></div>
+    <div class="supp-item"><div class="supp-icon">🍵</div><div class="supp-name">Ashwagandha</div><div><div class="supp-dose">600mg</div><div class="supp-time">Con la cena</div></div></div>
+    <div class="supp-item"><div class="supp-icon">🔴</div><div class="supp-name">Creatina</div><div><div class="supp-dose">5g/día</div><div class="supp-time">Post-entrenamiento</div></div></div>
+  </div>
+</div><!-- /nutricion -->
+
+<!-- ██████████████████████████████████████
+     SCREEN: GLUCOSA (standalone)
+██████████████████████████████████████ -->
+<div id="glucosa" class="screen">
+  <div class="bubble">
+    <div class="who">🩸 Monitor de Glucosa · Revertir Prediabetes</div>
+    Target: Glucosa en ayunas &lt;100 mg/dL · Post-prandial &lt;140 mg/dL. Cada registro te da datos para optimizar tu plan.
+  </div>
+  <div class="gluc-row">
+    <div class="gluc-card">
+      <div class="gluc-val normal" id="gluc-ayunas-val2">—</div>
+      <div class="gluc-lbl">En ayunas</div>
+      <div class="gluc-status normal" id="gluc-ayunas-status2">Sin datos</div>
+    </div>
+    <div class="gluc-card">
+      <div class="gluc-val normal" id="gluc-post-val2">—</div>
+      <div class="gluc-lbl">Post-prandial</div>
+      <div class="gluc-status normal" id="gluc-post-status2">Sin datos</div>
+    </div>
+  </div>
+  <div class="input-row">
+    <input type="number" id="gluc-ay-in2" class="input" placeholder="Glucosa en ayunas (mg/dL)" min="50" max="400">
+    <input type="number" id="gluc-post-in2" class="input" placeholder="Post-comida" min="50" max="500">
+  </div>
+  <button class="btn btn-hp" onclick="saveGlucosa2()">🩸 Registrar glucosa</button>
+  <div class="chart-wrap">
+    <div class="chart-title">📈 Historial glucosa en ayunas</div>
+    <div class="chart-bars" id="gluc-chart2"></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ci xp-bg">🔬</div><div><div class="ct">Interpretación</div><div class="cs">Referencias clínicas</div></div></div>
+    <p><strong>Normal en ayunas:</strong> &lt;100 mg/dL ✅</p>
+    <p><strong>Prediabetes en ayunas:</strong> 100-125 mg/dL ⚠️</p>
+    <p><strong>Diabetes en ayunas:</strong> ≥126 mg/dL 🚨</p>
+    <p><strong>Normal post-comida (2h):</strong> &lt;140 mg/dL ✅</p>
+    <div class="tip">💡 El ejercicio (KB + caminata) puede bajar 20-40 mg/dL la glucosa en 48-72h de práctica constante.</div>
+  </div>
+</div><!-- /glucosa -->
+
+<!-- ██████████████████████████████████████
+     SCREEN: TIENDA
+██████████████████████████████████████ -->
+<div id="tienda" class="screen">
+  <div class="bubble">
+    <div class="who">🛒 Tienda de Recompensas · Economía de Oro</div>
+    Ganás oro completando tareas difíciles. Canjealo por recompensas del mundo real que vos mismo definís. <strong>Balance actual: <span id="tienda-gold">0</span> 🪙</strong>
+  </div>
+
+  <div class="sec-hdr">
+    <div class="sec-icon">🎁</div>
+    <div><h2>Recompensas</h2><p>Canjear oro por premios reales</p></div>
+  </div>
+  <div id="shop-items"></div>
+
+  <!-- Add reward -->
+  <div class="card glow-gold">
+    <div class="ct" style="margin-bottom:10px">➕ Crear nueva recompensa</div>
+    <input type="text" id="reward-name" class="input" placeholder="Ej: Ver una serie, Salir a cenar..." style="margin-bottom:8px;width:100%">
+    <div style="display:flex;gap:8px">
+      <input type="number" id="reward-cost" class="input" placeholder="Costo en 🪙" min="10" max="1000">
+      <input type="text" id="reward-emoji" class="input" placeholder="Emoji" style="max-width:70px">
+      <button class="input-btn" onclick="addReward()">➕</button>
+    </div>
+  </div>
+
+  <!-- Oro history -->
+  <div class="sec-hdr">
+    <div class="sec-icon">📊</div>
+    <div><h2>Historial de Oro</h2><p>Cómo ganaste tus monedas</p></div>
+  </div>
+  <div id="gold-history" style="padding:0 14px"></div>
+</div><!-- /tienda -->
+
+<!-- ██████████████████████████████████████
+     SCREEN: AJUSTES
+██████████████████████████████████████ -->
+<div id="ajustes" class="screen">
+  <div class="sec-hdr">
+    <div class="sec-icon">⚙️</div>
+    <div><h2>Configuración</h2><p>Alertas, datos y preferencias</p></div>
+  </div>
+
+  <div class="card">
+    <div class="ct" style="margin-bottom:12px">👤 Mis datos</div>
+    <div class="cfg-row">
+      <div class="cfg-lbl">Tu nombre</div>
+      <input type="text" id="cfg-name" class="input" placeholder="Ej: Gabriel">
+    </div>
+    <div class="cfg-row">
+      <div class="cfg-lbl">Peso inicial (kg)</div>
+      <input type="number" id="cfg-peso-ini" class="input" placeholder="110" min="60" max="200">
+    </div>
+    <div class="cfg-row">
+      <div class="cfg-lbl">Peso meta (kg)</div>
+      <input type="number" id="cfg-peso-meta" class="input" placeholder="80" min="50" max="150">
+    </div>
+    <div class="cfg-row">
+      <div class="cfg-lbl">Altura (cm)</div>
+      <input type="number" id="cfg-altura" class="input" placeholder="170" min="140" max="220">
+    </div>
+    <button class="btn btn-xp" style="margin:12px 0 0;width:100%" onclick="saveConfig()">💾 Guardar datos</button>
+  </div>
+
+  <div class="card">
+    <div class="ct" style="margin-bottom:12px">🔔 Alertas sonoras (Time Blocking)</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Activá las alarmas para que la app te avise cuando cambiar de actividad. Requiere que el navegador esté abierto.</div>
+    <div id="notif-list"></div>
+    <button class="btn btn-outline" style="margin:12px 0 0;width:100%" onclick="testSound()">🔔 Probar sonido de alarma</button>
+  </div>
+
+  <!-- iOS BACKUP CARD -->
+  <div class="card" style="border-color:rgba(0,212,255,.25)" id="ios-backup-card">
+    <div class="ct" style="margin-bottom:8px">📲 Backup de Datos — iPhone</div>
+    <p style="font-size:12.5px;color:var(--text3);margin-bottom:12px">Safari en iPhone puede borrar los datos si no abrís la app por 7 días. <strong style="color:var(--xp1)">Exportá un backup cada semana</strong> para no perder tu progreso.</p>
+    <button onclick="exportData()" style="padding:12px;background:linear-gradient(135deg,rgba(0,212,255,.15),rgba(0,96,128,.08));border:1px solid rgba(0,212,255,.3);border-radius:var(--radius-sm);color:var(--xp1);font-size:13px;font-weight:800;font-family:'Exo 2',sans-serif;cursor:pointer;width:100%;margin-bottom:8px">📤 Exportar backup (.json)</button>
+    <button onclick="importData()" style="padding:12px;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.2);border-radius:var(--radius-sm);color:var(--hp1);font-size:13px;font-weight:800;font-family:'Exo 2',sans-serif;cursor:pointer;width:100%">📥 Restaurar desde backup</button>
+  </div>
+
+  <div class="card" style="border-color:rgba(255,64,96,.2)">
+    <div class="ct" style="margin-bottom:8px;color:var(--red1)">⚠️ Zona de peligro</div>
+    <p style="font-size:13px;color:var(--text3)">Resetear borra TODO tu progreso, nivel, oro y rachas. No hay vuelta atrás.</p>
+    <button onclick="resetAll()" style="margin-top:12px;padding:12px;background:rgba(255,64,96,.12);border:1px solid rgba(255,64,96,.3);border-radius:var(--radius-sm);color:var(--red1);font-size:13px;font-weight:800;font-family:'Exo 2',sans-serif;cursor:pointer;width:100%">🗑️ Resetear todo el progreso</button>
+  </div>
+</div><!-- /ajustes -->
+
+</div><!-- /app -->
+
+<!-- iOS "Agregar a pantalla de inicio" banner -->
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   MBARETE RPG ENGINE — Complete JS
+═══════════════════════════════════════════════════════════ */
+
+/* ══ STORAGE HELPERS — iOS/file:// Safe ══ */
+const _mem = {};
+let _storageOK = false;
+// Test if storage works at all
+try { localStorage.setItem('__t','1'); localStorage.removeItem('__t'); _storageOK=true; } catch(e) {}
+
+function sv(k,v){
+  try { const s=JSON.stringify(v); _mem[k]=s; if(_storageOK){try{localStorage.setItem(k,s)}catch(e){} try{sessionStorage.setItem(k,s)}catch(e){}} } catch(e) {}
+}
+function ld(k,def){
+  try {
+    if(_storageOK){
+      try{const v=localStorage.getItem(k);if(v!=null){_mem[k]=v;return JSON.parse(v)}}catch(e){}
+      try{const v=sessionStorage.getItem(k);if(v!=null){_mem[k]=v;return JSON.parse(v)}}catch(e){}
+    }
+    if(_mem[k]!=null) return JSON.parse(_mem[k]);
+  } catch(e) {}
+  return def;
+}
+
+// Detectar iOS y standalone (PWA)
+const isIOS = (function(){ try{ return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1); }catch(e){return false;} })();
+const isStandalone = (function(){ try{ return window.navigator.standalone===true; }catch(e){return false;} })();
+
+// Backup/Restore manual de datos
+function exportData(){
+  try {
+    const keys=['rpg_state','streaks_v4','habits_v4','km_v4','gluc_v4','series_v4','sleep_v4','notif_v4','missions_v4','rewards_v4','gold_history_v4','weight_log_v4','5am_v4','active_days_v4','last_day_v4','first_launch_done'];
+    const backup={};
+    keys.forEach(k=>{const v=ld(k,null);if(v!==null)backup[k]=v});
+    try{Object.keys(localStorage).filter(k=>k.startsWith('done_today_')||k.startsWith('streak_last_')).forEach(k=>{try{backup[k]=JSON.parse(localStorage.getItem(k))}catch(e){}})}catch(e){}
+    const dataStr=JSON.stringify(backup,null,2);
+    // iOS-safe download
+    const a=document.createElement('a');
+    a.href='data:application/json;charset=utf-8,'+encodeURIComponent(dataStr);
+    a.download='mbarete_backup_'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    showToast('✅ Backup exportado — guardalo en Archivos 📁','xp',4000);
+  } catch(e){ showToast('⚠️ Error al exportar: '+e.message); }
+}
+function importData(){
+  try {
+    const input=document.createElement('input');input.type='file';input.accept='.json';
+    input.onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);Object.entries(d).forEach(([k,v])=>sv(k,v));showToast('✅ Datos restaurados. Recargando...','hp',2000);setTimeout(()=>location.reload(),2000)}catch(err){showToast('⚠️ Archivo inválido','warn')}};r.readAsText(file)};
+    document.body.appendChild(input);input.click();document.body.removeChild(input);
+  } catch(e){}
+}
+
+
+/* ══ DATE UTILS ══ */
+const todayKey = (function(){ try{ return new Date().toDateString(); }catch(e){ return 'today'; } })();
+const todayDOW = (function(){ try{ return new Date().getDay(); }catch(e){ return 0; } })();
+
+/* ══════════════════════════════════════════════
+   RPG STATE
+══════════════════════════════════════════════ */
+let rpg = (function(){
+  const def={level:1,xp:0,hp:100,maxHp:100,gold:0,name:'GUERRERO',pesoInicial:110,pesoMeta:80,pesoActual:110,altura:170};
+  try{ return ld('rpg_state', def); }catch(e){ return def; }
+})();
+
+let doneToday  = (function(){ try{ return ld('done_today_'+todayKey, {}); }catch(e){ return {}; } })();
+let streakData = (function(){ try{ return ld('streaks_v4', {}); }catch(e){ return {}; } })();
+let habitData  = (function(){ try{ return ld('habits_v4', {}); }catch(e){ return {}; } })();
+let kmData     = (function(){ try{ return ld('km_v4', [0,0,0,0,0,0,0]); }catch(e){ return [0,0,0,0,0,0,0]; } })();
+let glucData   = (function(){ try{ return ld('gluc_v4', []); }catch(e){ return []; } })();
+let seriesData = (function(){ try{ return ld('series_v4', {}); }catch(e){ return {}; } })();
+let sleepData  = (function(){ try{ return ld('sleep_v4', 0); }catch(e){ return 0; } })();
+let notifData  = (function(){ try{ return ld('notif_v4', {}); }catch(e){ return {}; } })();
+let missions   = (function(){ try{ return ld('missions_v4', []); }catch(e){ return []; } })();
+let rewards    = (function(){ try{ return ld('rewards_v4', []); }catch(e){ return []; } })();
+let goldHistory= (function(){ try{ return ld('gold_history_v4', []); }catch(e){ return []; } })();
+let weightLog  = (function(){ try{ return ld('weight_log_v4', []); }catch(e){ return []; } })();
+let fiveAMData = (function(){ try{ return ld('5am_v4', {}); }catch(e){ return {}; } })();
+
+/* ══════════════════════════════════════════════
+   LEVEL SYSTEM CONFIG
+══════════════════════════════════════════════ */
+const LEVEL_XP = [0, 200, 500, 1000, 1800, 2800, 4200, 6000, 8500, 12000, 16000];
+const LEVEL_TITLES = [
+  '', 'Aprendiz','Guerrero','Héroe','Campeón','Leyenda',
+  'Maestro','Gran Maestro','Sabio','Élite','Inmortal'
+];
+const LEVEL_EMOJIS = ['','⚔️','🛡️','🗡️','👑','🏆','💎','🌟','🔥','⚡','🌙'];
+
+function xpForLevel(lvl){return LEVEL_XP[Math.min(lvl,10)]||99999}
+function xpForNext(lvl){return LEVEL_XP[Math.min(lvl+1,10)]||99999}
+
+/* ══════════════════════════════════════════════
+   SCHEDULE (TIME BLOCKS)
+══════════════════════════════════════════════ */
+const SCHEDULE = [
+  {time:'05:00',emoji:'🌅',title:'Despertar 5 AM',desc:'Levantate, hidratate (500ml agua) y salí de la cama de inmediato.',habit:'5am',xp:50,gold:10,hp:5,sound:'morning'},
+  {time:'05:15',emoji:'🧘',title:'Meditación / Lectura',desc:'15 min de meditación o lectura de desarrollo personal. Prepará tu mente.',habit:'meditacion',xp:30,gold:5,hp:3,sound:'chime'},
+  {time:'06:00',emoji:'🌞',title:'Rutina Matutina',desc:'Ducha fría, suplementos (D3+K2+Omega3), desayuno keto.',habit:'rutina',xp:20,gold:5,hp:2,sound:'chime'},
+  {time:'06:45',emoji:'🚶',title:'Caminata',desc:'30-45 min a ritmo moderado. Zona de quema de grasa máxima.',habit:'caminata',xp:40,gold:10,hp:5,sound:'chime'},
+  {time:'09:00',emoji:'💼',title:'Logos Group · Bloque A',desc:'Contactos de reclutamiento, seguimiento de prospectos, LinkedIn.',habit:'negocios',xp:50,gold:15,hp:2,sound:'work'},
+  {time:'11:00',emoji:'📱',title:'Contenido Digital',desc:'Grabá un video/reel para Instagram o WhatsApp. 15-30 minutos.',habit:'contenido',xp:40,gold:10,hp:0,sound:'chime'},
+  {time:'13:00',emoji:'🥩',title:'Almuerzo Keto',desc:'Proteína + grasas saludables. Sin carbohidratos. Registrá glucosa post.',habit:'almuerzo',xp:20,gold:5,hp:3,sound:'chime'},
+  {time:'14:00',emoji:'😴',title:'Siesta estratégica',desc:'20 min máximo. Recupera la testosterona del mediodía.',habit:'siesta',xp:15,gold:0,hp:5,sound:'soft'},
+  {time:'17:00',emoji:'🏋️',title:'KB Training',desc:'Entrenamiento kettlebell completo (40-50 min). El pico hormonal mayor del día.',habit:'entrenamiento',xp:150,gold:50,hp:10,sound:'training'},
+  {time:'19:00',emoji:'💼',title:'Logos Group · Bloque B',desc:'Cierre de seguimientos del día, planificación del mañana, mensajes pendientes.',habit:'negocios2',xp:40,gold:15,hp:0,sound:'work'},
+  {time:'21:00',emoji:'🌙',title:'Rutina Nocturna',desc:'Cena keto liviana, ZMA + Magnesio, lectura/preparar el día siguiente.',habit:'nocturna',xp:25,gold:5,hp:3,sound:'soft'},
+  {time:'22:00',emoji:'😴',title:'Apagar pantallas',desc:'Sin celular, sin TV. El sueño profundo produce el 70% de la testosterona diaria.',habit:'sueno',xp:20,gold:5,hp:5,sound:'sleep'},
+];
+
+/* ══════════════════════════════════════════════
+   HABITS
+══════════════════════════════════════════════ */
+const HABITS = [
+  {id:'meditacion',name:'Meditación',icon:'🧘',xp:30,gold:5,maxStreak:66},
+  {id:'lectura',name:'Lectura 20 min',icon:'📚',xp:25,gold:5,maxStreak:66},
+  {id:'caminata',name:'Caminata diaria',icon:'🚶',xp:40,gold:10,maxStreak:66},
+  {id:'entrenamiento',name:'Kettlebell',icon:'🏋️',xp:150,gold:50,maxStreak:21},
+  {id:'keto',name:'Dieta Keto',icon:'🥩',xp:30,gold:8,maxStreak:21},
+  {id:'sueno',name:'Dormir 7h+',icon:'😴',xp:30,gold:5,maxStreak:21},
+  {id:'5am',name:'Despertar 5 AM',icon:'🌅',xp:50,gold:10,maxStreak:66},
+  {id:'contenido',name:'Contenido Logos',icon:'📱',xp:40,gold:10,maxStreak:21},
+];
+
+/* ══════════════════════════════════════════════
+   MISSIONS (Logos Group)
+══════════════════════════════════════════════ */
+const DEFAULT_MISSIONS = [
+  {id:'m1',type:'recruit',icon:'👤',title:'Llamar a 5 prospectos',desc:'Contacto inicial con 5 personas para presentar Royal Prestige en Goya.',xp:80,gold:30,done:false,daily:true},
+  {id:'m2',type:'recruit',icon:'🤝',title:'Reunión de presentación',desc:'Presentación presencial o virtual de la oportunidad de negocio.',xp:100,gold:50,done:false,daily:false},
+  {id:'m3',type:'recruit',icon:'📋',title:'Seguimiento de 10 prospectos',desc:'Actualizar el estado de 10 prospectos en el CRM o agenda.',xp:60,gold:20,done:false,daily:true},
+  {id:'m4',type:'content',icon:'🎬',title:'Grabar 1 video testimonial',desc:'Video de 60-90 segundos compartiendo tu transformación personal o de un cliente.',xp:70,gold:25,done:false,daily:false},
+  {id:'m5',type:'content',icon:'📸',title:'Post en Instagram',desc:'Publicá una historia o post sobre Royal Prestige / tu proceso de salud.',xp:40,gold:15,done:false,daily:true},
+  {id:'m6',type:'content',icon:'✍️',title:'Contenido WhatsApp Business',desc:'Enviá un mensaje de valor a tu lista de difusión (no spam, valor real).',xp:35,gold:10,done:false,daily:true},
+  {id:'m7',type:'sales',icon:'🍳',title:'Demostración de cocina',desc:'Realizá una demostración de productos en casa de un prospecto.',xp:120,gold:60,done:false,daily:false},
+  {id:'m8',type:'sales',icon:'💰',title:'Cerrar una venta',desc:'¡Cerraste una venta de Royal Prestige! El mayor XP de todos.',xp:200,gold:100,done:false,daily:false},
+  {id:'m9',type:'sales',icon:'📞',title:'Seguimiento post-demostración',desc:'Contactar a todos los prospectos que tuvieron demostración esta semana.',xp:50,gold:20,done:false,daily:false},
+];
+
+/* ══════════════════════════════════════════════
+   NOTIFICATIONS CONFIG
+══════════════════════════════════════════════ */
+const NOTIFS = [
+  {id:'n1',icon:'🌅',name:'Despertar 5 AM',time:'05:00',on:true,sound:'morning'},
+  {id:'n2',icon:'🧘',name:'Meditación',time:'05:15',on:true,sound:'chime'},
+  {id:'n3',icon:'🚶',name:'Caminata',time:'06:45',on:true,sound:'chime'},
+  {id:'n4',icon:'💼',name:'Bloque trabajo A',time:'09:00',on:true,sound:'work'},
+  {id:'n5',icon:'📱',name:'Contenido digital',time:'11:00',on:true,sound:'chime'},
+  {id:'n6',icon:'🥩',name:'Almuerzo keto',time:'13:00',on:true,sound:'chime'},
+  {id:'n7',icon:'🏋️',name:'Kettlebell Training',time:'17:00',on:true,sound:'training'},
+  {id:'n8',icon:'💼',name:'Bloque trabajo B',time:'19:00',on:true,sound:'work'},
+  {id:'n9',icon:'🌙',name:'Rutina nocturna',time:'21:00',on:true,sound:'soft'},
+  {id:'n10',icon:'😴',name:'Apagar pantallas',time:'22:00',on:true,sound:'sleep'},
+];
+
+/* ══════════════════════════════════════════════
+   DEFAULT REWARDS
+══════════════════════════════════════════════ */
+const DEFAULT_REWARDS = [
+  {id:'r1',emoji:'📺',name:'Ver una serie (1 ep)',cost:50},
+  {id:'r2',emoji:'🍕',name:'Comer algo fuera del plan',cost:100},
+  {id:'r3',emoji:'🎮',name:'2h de videojuegos / streaming',cost:80},
+  {id:'r4',emoji:'☕',name:'Café especial / capuchino',cost:30},
+  {id:'r5',emoji:'🛁',name:'Baño de inmersión / spa',cost:150},
+  {id:'r6',emoji:'🎬',name:'Noche de película',cost:60},
+];
+
+/* ══════════════════════════════════════════════
+   AUDIO ENGINE (Web Audio API)
+══════════════════════════════════════════════ */
+let audioCtx = null;
+
+function getAudioCtx(){
+  // Only create AudioContext after a user gesture (required by iOS Safari)
+  try {
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+  } catch(e) { return null; }
+  return audioCtx;
+}
+
+function playTone(freq, duration, type='sine', gain=0.3){
+  try{
+    const ctx = getAudioCtx();
+    if(!ctx) return;
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gainNode.gain.setValueAtTime(gain, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+  }catch(e){}
+}
+
+function playAlertSound(type='chime'){
+  try{
+    const ctx = getAudioCtx();
+    if(ctx.state === 'suspended') ctx.resume();
+
+    switch(type){
+      case 'morning': // 5 AM wake up — energetic ascending
+        playTone(330, 0.15, 'square', 0.2);
+        setTimeout(()=>playTone(440, 0.15, 'square', 0.2), 160);
+        setTimeout(()=>playTone(550, 0.15, 'square', 0.2), 320);
+        setTimeout(()=>playTone(660, 0.3, 'square', 0.25), 480);
+        setTimeout(()=>playTone(880, 0.5, 'sine', 0.25), 700);
+        break;
+      case 'chime': // Soft notification
+        playTone(880, 0.2, 'sine', 0.25);
+        setTimeout(()=>playTone(1100, 0.3, 'sine', 0.2), 220);
+        break;
+      case 'work': // Work block — focused
+        playTone(440, 0.1, 'triangle', 0.3);
+        setTimeout(()=>playTone(440, 0.1, 'triangle', 0.3), 150);
+        setTimeout(()=>playTone(554, 0.4, 'sine', 0.25), 300);
+        break;
+      case 'training': // KB session — powerful
+        for(let i=0;i<3;i++){
+          setTimeout(()=>{
+            playTone(200, 0.08, 'sawtooth', 0.3);
+            setTimeout(()=>playTone(300, 0.08, 'sawtooth', 0.25), 100);
+          }, i*250);
+        }
+        setTimeout(()=>playTone(440, 0.6, 'square', 0.3), 800);
+        break;
+      case 'soft': // Gentle evening
+        playTone(660, 0.4, 'sine', 0.15);
+        setTimeout(()=>playTone(528, 0.5, 'sine', 0.12), 450);
+        break;
+      case 'sleep': // Wind down
+        playTone(396, 0.6, 'sine', 0.15);
+        setTimeout(()=>playTone(264, 0.8, 'sine', 0.1), 700);
+        break;
+      case 'levelup': // Level up fanfare
+        const notes=[330,440,554,660,880];
+        notes.forEach((n,i)=>setTimeout(()=>playTone(n,0.25,'triangle',0.3),i*130));
+        setTimeout(()=>playTone(1100,0.6,'sine',0.3),700);
+        break;
+      case 'reward': // Gold sound
+        playTone(880,0.1,'sine',0.3);
+        setTimeout(()=>playTone(1100,0.1,'sine',0.3),100);
+        setTimeout(()=>playTone(1320,0.3,'sine',0.25),200);
+        break;
+      case 'hp_loss': // HP damage
+        playTone(200,0.1,'sawtooth',0.3);
+        setTimeout(()=>playTone(150,0.4,'sawtooth',0.25),120);
+        break;
+    }
+  }catch(e){}
+}
+
+function testSound(){playAlertSound('morning')}
+
+/* ══════════════════════════════════════════════
+   NAV & SCREEN ROUTER
+══════════════════════════════════════════════ */
+function go(id, btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+  if(btn) btn.classList.add('active');
+  // Render screen
+  switch(id){
+    case 'inicio':     renderInicio(); break;
+    case 'mi-dia':     renderTimeline(); break;
+    case 'habitos':    renderHabitos(); break;
+    case 'misiones':   renderMissions(); break;
+    case 'salud':      renderSalud(); break;
+    case 'glucosa':    renderGlucosa(); break;
+    case 'kettlebell': renderSeries(); break;
+    case 'tienda':     renderShop(); break;
+    case 'ajustes':    renderConfig(); break;
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+let toastTimer = null;
+function showToast(msg, type='', dur=3000){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type?' '+type:'');
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), dur);
+}
+
+/* ══════════════════════════════════════════════
+   PARTICLES (level up effect)
+══════════════════════════════════════════════ */
+function spawnParticles(){
+  const colors=['#ffd700','#00ff88','#00d4ff','#ff4060'];
+  for(let i=0;i<30;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const size=(Math.random()*8+4)+'px';
+    p.style.cssText=`
+      width:${size};height:${size};
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      left:${Math.random()*100}vw;top:${Math.random()*30+10}vh;
+      --dx:${(Math.random()-0.5)*200}px;
+      --dur:${Math.random()*1+1}s;
+    `;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(), 2500);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   RPG CORE — XP, HP, GOLD
+══════════════════════════════════════════════ */
+function addXP(amount, reason=''){
+  rpg.xp += amount;
+  checkLevelUp();
+  sv('rpg_state', rpg);
+  updateRPGHeader();
+  if(reason) addGoldHistory(`+${amount} XP: ${reason}`);
+}
+
+function addGold(amount, reason=''){
+  rpg.gold += amount;
+  sv('rpg_state', rpg);
+  updateRPGHeader();
+  goldHistory.unshift({type:'earn',amount,reason,date:new Date().toLocaleDateString('es-AR')});
+  if(goldHistory.length>50) goldHistory.pop();
+  sv('gold_history_v4', goldHistory);
+  playAlertSound('reward');
+}
+
+function spendGold(amount){
+  if(rpg.gold < amount) return false;
+  rpg.gold -= amount;
+  sv('rpg_state', rpg);
+  updateRPGHeader();
+  return true;
+}
+
+function addGoldHistory(text){}  // XP log (simplified)
+
+function loseHP(amount){
+  rpg.hp = Math.max(0, rpg.hp - amount);
+  sv('rpg_state', rpg);
+  updateRPGHeader();
+  playAlertSound('hp_loss');
+  showToast('💔 HP -'+amount+' por dailies incompletos', 'hp', 4000);
+}
+
+function restoreHP(amount){
+  rpg.hp = Math.min(rpg.maxHp, rpg.hp + amount);
+  sv('rpg_state', rpg);
+  updateRPGHeader();
+}
+
+function checkLevelUp(){
+  while(rpg.level < 10 && rpg.xp >= xpForNext(rpg.level)){
+    rpg.level++;
+    sv('rpg_state', rpg);
+    showLevelUp(rpg.level);
+  }
+}
+
+function showLevelUp(lvl){
+  document.getElementById('lvlup-num').textContent = lvl;
+  document.getElementById('lvlup-msg').textContent = `¡Sos un ${LEVEL_TITLES[lvl]}! Seguí así, guerrero.`;
+  document.getElementById('lvlup-overlay').classList.add('show');
+  playAlertSound('levelup');
+  spawnParticles();
+  setTimeout(spawnParticles, 500);
+}
+
+function closeLevelUp(){
+  document.getElementById('lvlup-overlay').classList.remove('show');
+}
+
+/* ══════════════════════════════════════════════
+   UPDATE RPG HEADER
+══════════════════════════════════════════════ */
+function updateRPGHeader(){
+  // Level
+  const lvl = rpg.level;
+  document.getElementById('avatar-lvl').textContent = 'Nv.'+lvl;
+  document.getElementById('avatar-emoji').textContent = LEVEL_EMOJIS[lvl] || '⚔️';
+  document.getElementById('hdr-name').textContent = rpg.name || 'GUERRERO';
+
+  // HP bar
+  const hpPct = Math.max(0, (rpg.hp / rpg.maxHp)*100);
+  document.getElementById('hp-bar').style.width = hpPct+'%';
+  document.getElementById('hp-val').textContent = rpg.hp+'/'+rpg.maxHp;
+
+  // Avatar ring (HP color)
+  const ring = document.getElementById('avatar-ring');
+  ring.style.setProperty('--hp-pct', hpPct+'%');
+  ring.style.background = `conic-gradient(var(--hp1) ${hpPct}%, var(--bg3) 0)`;
+  if(hpPct < 30) ring.style.background = `conic-gradient(var(--red1) ${hpPct}%, var(--bg3) 0)`;
+
+  // XP bar
+  const xpStart = xpForLevel(lvl);
+  const xpEnd   = xpForNext(lvl);
+  const xpInLevel = rpg.xp - xpStart;
+  const xpNeeded  = xpEnd - xpStart;
+  const xpPct = Math.min(100, Math.round((xpInLevel / xpNeeded)*100));
+  document.getElementById('xp-bar').style.width = xpPct+'%';
+  document.getElementById('xp-val').textContent = rpg.xp+'/'+xpEnd;
+
+  // Gold
+  document.getElementById('hdr-gold-val').textContent = rpg.gold;
+
+  // Day progress
+  const done = Object.keys(doneToday).length;
+  const total = SCHEDULE.length;
+  const pct = Math.round((done/total)*100);
+  document.getElementById('hdr-pct').textContent = pct+'%';
+
+  const msgs = [
+    '¡Empezá tu día, guerrero! 💪',
+    '¡Buen comienzo! Seguí así 🔥',
+    '¡A mitad del camino! 💪',
+    '¡Casi listo! Solo un poco más ⚡',
+    '¡DÍA PERFECTO! Sos una leyenda 🏆'
+  ];
+  const idx = Math.min(4, Math.floor(pct/25));
+  document.getElementById('hdr-msg').textContent = msgs[idx];
+
+  // Day label
+  const days=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const now = new Date();
+  document.getElementById('hdr-day').textContent = `${days[now.getDay()]} ${now.getDate()}/${now.getMonth()+1}`;
+
+  // Stat boxes
+  const el1=document.getElementById('si-days');
+  const el2=document.getElementById('si-done');
+  const el3=document.getElementById('si-gold');
+  if(el1) el1.textContent = ld('active_days_v4',0);
+  if(el2) el2.textContent = done;
+  if(el3) el3.textContent = rpg.gold;
+
+  // Tienda gold
+  const tg = document.getElementById('tienda-gold');
+  if(tg) tg.textContent = rpg.gold;
+}
+
+/* ══════════════════════════════════════════════
+   TIME BLOCK NOW indicator
+══════════════════════════════════════════════ */
+function updateTimeBlockNow(){
+  try {
+    const now = new Date();
+    const mins = now.getHours()*60 + now.getMinutes();
+    let current = null, next = null;
+
+    for(let i=0;i<SCHEDULE.length;i++){
+      const parts = SCHEDULE[i].time.split(':');
+      const blockMins = parseInt(parts[0])*60 + parseInt(parts[1]);
+      if(mins >= blockMins){
+        current = SCHEDULE[i];
+        next = SCHEDULE[i+1] || null;
+      }
+    }
+
+    const t1 = document.getElementById('tbn-title');
+    const t2 = document.getElementById('tbn-next');
+    if(!t1 || !t2) return;
+
+    if(current){
+      t1.textContent = current.emoji + ' ' + current.time + ' · ' + current.title;
+      t2.textContent = next ? ('Próximo: ' + next.time + ' · ' + next.title) : 'Último bloque del día 🌙';
+    } else {
+      // Before 5 AM
+      t1.textContent = '🌙 Antes de las 5 AM — Hora de descansar';
+      t2.textContent = 'Próximo: 05:00 · ' + SCHEDULE[0].title;
+    }
+  } catch(e) {
+    const t1 = document.getElementById('tbn-title');
+    if(t1) t1.textContent = '⏰ Revisá tu horario';
+  }
+}
+
+/* ══════════════════════════════════════════════
+   CHECK REMINDERS (runs every minute)
+══════════════════════════════════════════════ */
+function checkReminders(){
+  try {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const current = hh+':'+mm;
+
+    NOTIFS.forEach(n=>{
+      try {
+        const isOn = notifData[n.id] !== undefined ? notifData[n.id] : n.on;
+        if(!isOn) return;
+        const diff = timeToMins(current) - timeToMins(n.time);
+        if(diff >= 0 && diff < 2){
+          const lastFired = ld('last_fired_'+n.id,'');
+          if(lastFired === current) return;
+          sv('last_fired_'+n.id, current);
+          // Only play sound if audioCtx already exists (user interacted)
+          if(audioCtx) playAlertSound(n.sound || 'chime');
+          const banner = document.getElementById('reminder-banner');
+          if(banner) {
+            document.getElementById('rb-icon').textContent = n.icon;
+            document.getElementById('rb-text').textContent = '⏰ ¡Hora de: ' + n.name + '!';
+            banner.classList.remove('hide');
+            setTimeout(()=>banner.classList.add('hide'), 30000);
+          }
+          showToast(n.icon + ' ¡Hora de: ' + n.name + '!', 'xp', 5000);
+        }
+      } catch(e) {}
+    });
+
+    updateTimeBlockNow();
+
+    // Daily HP check at 11 PM
+    if(now.getHours() === 23 && now.getMinutes() === 0){
+      const dayKey = 'hp_checked_'+todayKey;
+      if(!ld(dayKey,false)){
+        sv(dayKey, true);
+        const done = Object.keys(doneToday).length;
+        const total = SCHEDULE.length;
+        const pct = done/total;
+        if(pct < 0.5){
+          loseHP(20);
+          showToast('⚠️ Menos del 50% completado — HP -20 💔','hp',5000);
+        } else if(pct < 0.8){
+          loseHP(10);
+          showToast('⚠️ Buen intento, pero faltaron dailies — HP -10','hp',5000);
+        } else {
+          restoreHP(10);
+          showToast('✅ ¡Excelente día! HP +10 restaurado 💚','hp',4000);
+        }
+      }
+    }
+
+    checkDailyReset();
+  } catch(e) {}
+}
+
+function timeToMins(t){const[h,m]=t.split(':').map(Number);return h*60+m}
+
+/* ══════════════════════════════════════════════
+   DAILY RESET
+══════════════════════════════════════════════ */
+function checkDailyReset(){
+  const lastDay = ld('last_day_v4','');
+  if(lastDay !== todayKey){
+    sv('last_day_v4', todayKey);
+    // New day
+    doneToday = {};
+    sv('done_today_'+todayKey, {});
+    // Track active days
+    let activeDays = ld('active_days_v4',0);
+    activeDays++;
+    sv('active_days_v4', activeDays);
+    // Restore some HP each day
+    restoreHP(5);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   WEIGHT SYSTEM
+══════════════════════════════════════════════ */
+function saveWeight(){
+  const v = parseFloat(document.getElementById('kg-input').value);
+  if(isNaN(v)||v<60||v>150){showToast('⚠️ Ingresá tu peso actual (ej: 108.5)');return}
+  const prev = rpg.pesoActual;
+  rpg.pesoActual = v;
+  sv('rpg_state', rpg);
+  // Log
+  weightLog.push({date:todayKey, kg:v});
+  if(weightLog.length>60) weightLog.shift();
+  sv('weight_log_v4', weightLog);
+  // XP for losing weight
+  if(v < prev){
+    const diff = (prev - v).toFixed(1);
+    addXP(50, `¡Bajaste ${diff}kg!`);
+    addGold(20, `¡Bajaste ${diff}kg!`);
+    showToast(`🎉 ¡Bajaste ${diff}kg! +50XP +20🪙`, 'gold', 4000);
+    playAlertSound('levelup');
+  } else {
+    showToast(`📍 Peso registrado: ${v}kg. ¡Seguí adelante!`);
+  }
+  renderInicio();
+  document.getElementById('kg-input').value = '';
+}
+
+function saveWeightSalud(){
+  const v = parseFloat(document.getElementById('kg-input-salud').value);
+  if(isNaN(v)||v<60||v>150){showToast('⚠️ Ingresá tu peso actual');return}
+  const prev = rpg.pesoActual;
+  rpg.pesoActual = v;
+  sv('rpg_state', rpg);
+  weightLog.push({date:todayKey, kg:v});
+  if(weightLog.length>60) weightLog.shift();
+  sv('weight_log_v4', weightLog);
+  if(v < prev){
+    addXP(50,'Pérdida de peso registrada');
+    addGold(20,'Pérdida de peso registrada');
+    showToast(`🎉 ¡Bajaste ${(prev-v).toFixed(1)}kg! +50XP +20🪙`,'gold',4000);
+  } else {
+    showToast(`📍 Peso: ${v}kg registrado`);
+  }
+  renderSalud();
+  document.getElementById('kg-input-salud').value = '';
+}
+
+function renderWeightUI(containerId, fillId, currentId, lostId, boxes2Id){
+  const pesoInicial = rpg.pesoInicial || 110;
+  const pesoMeta    = rpg.pesoMeta    || 80;
+  const pesoActual  = rpg.pesoActual  || pesoInicial;
+  const totalToLose = pesoInicial - pesoMeta;
+  const lost        = Math.max(0, pesoInicial - pesoActual);
+  const pct         = Math.min(100, Math.round((lost/totalToLose)*100));
+  const remain      = Math.max(0, pesoActual - pesoMeta).toFixed(1);
+
+  const cur = document.getElementById(currentId);
+  if(cur) cur.textContent = pesoActual.toFixed(1);
+  const fill = document.getElementById(fillId);
+  if(fill) fill.style.width = pct+'%';
+  const lostEl = document.getElementById(lostId);
+  if(lostEl) lostEl.textContent = lost.toFixed(1)+' kg bajados';
+
+  // KG boxes (30 boxes = 30kg)
+  const boxEl = document.getElementById(boxes2Id);
+  if(boxEl){
+    boxEl.innerHTML='';
+    for(let i=1;i<=totalToLose;i++){
+      const b=document.createElement('div');
+      b.className='kg-box'+(i<=Math.floor(lost)?' lost':(i===Math.ceil(lost)+1&&lost>0?' next':''));
+      b.textContent=i;
+      boxEl.appendChild(b);
+    }
+  }
+
+  // Home screen extras
+  const whRemain = document.getElementById('wh-remain');
+  const whWeeks  = document.getElementById('wh-weeks');
+  const whBmi    = document.getElementById('wh-bmi');
+  if(whRemain) whRemain.textContent = remain;
+  if(whWeeks)  whWeeks.textContent  = Math.ceil(parseFloat(remain)/0.5)+'sem';
+  if(whBmi && rpg.altura){
+    const bmi = (pesoActual / ((rpg.altura/100)**2)).toFixed(1);
+    whBmi.textContent = bmi;
+  }
+  const wh2Remain = document.getElementById('salud-lost-lbl');
+  if(wh2Remain) wh2Remain.textContent = lost.toFixed(1)+' kg bajados';
+}
+
+/* ══════════════════════════════════════════════
+   RENDER INICIO
+══════════════════════════════════════════════ */
+function renderInicio(){
+  renderWeightUI('wh-current','wh-fill','wh-current','wh-lost-lbl','kg-boxes');
+  updateRPGHeader();
+  updateTimeBlockNow();
+
+  // Habit streaks home
+  const el = document.getElementById('habit-streaks-home');
+  if(!el) return;
+  el.innerHTML='';
+  HABITS.slice(0,5).forEach(h=>{
+    const streak = streakData[h.id]||0;
+    const done = !!habitData[h.id+'_'+todayKey];
+    const pct = Math.min(100, Math.round((streak/h.maxStreak)*100));
+    const d = document.createElement('div');
+    d.className='habit-card'+(done?' done':'');
+    d.innerHTML=`
+      <div class="habit-emoji">${h.icon}</div>
+      <div class="habit-info">
+        <div class="habit-name">${h.name}</div>
+        <div class="habit-streak-row">
+          <div class="habit-bar"><div class="habit-bar-fill" style="width:${pct}%"></div></div>
+          <div class="habit-streak-lbl">${streak}d 🔥</div>
+        </div>
+        <div class="habit-rewards-row">
+          <span class="pill xp">+${h.xp}XP</span>
+          <span class="pill gold">+${h.gold}🪙</span>
+        </div>
+      </div>
+      <button class="habit-check-btn ${done?'done-btn':'undone'}" onclick="markHabit('${h.id}')">${done?'✅':'+ Check'}</button>
+    `;
+    el.appendChild(d);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   TIMELINE (Mi Día)
+══════════════════════════════════════════════ */
+function renderTimeline(){
+  const c = document.getElementById('timeline');
+  if(!c) return;
+  c.innerHTML='<div class="tl-spine"></div>';
+  const now = new Date();
+  const nowMins = now.getHours()*60 + now.getMinutes();
+
+  SCHEDULE.forEach((item,i)=>{
+    const done = !!doneToday[item.time];
+    const [h,m] = item.time.split(':').map(Number);
+    const isPast = nowMins > h*60+m;
+    const div = document.createElement('div');
+    div.className = 'tl-item'+(done?' done':'');
+    div.style.animationDelay = (i*0.06)+'s';
+    div.innerHTML=`
+      <div class="tl-dot">${done?'✅':item.emoji}</div>
+      <div class="tl-body">
+        <div class="tl-time">${item.time}${isPast&&!done?' <span style="color:var(--red1);font-size:9px">● PASADO</span>':''}</div>
+        <div class="tl-title">${item.title}</div>
+        <div class="tl-desc">${item.desc}</div>
+        <div class="tl-rewards">
+          <span class="tl-reward xp">⚡ +${item.xp} XP</span>
+          <span class="tl-reward gold">🪙 +${item.gold}</span>
+          ${item.hp>0?`<span class="tl-reward hp">❤️ +${item.hp} HP</span>`:''}
+        </div>
+        <button class="tl-btn ${done?'done-btn':''}" onclick="markDone('${item.time}','${item.habit}',${item.xp},${item.gold},${item.hp},'${item.sound}')">${done?'✅ Completado':'⚡ Marcar hecho'}</button>
+      </div>`;
+    c.appendChild(div);
+  });
+  updateRPGHeader();
+}
+
+function markDone(time, habit, xp, gold, hp, sound){
+  if(doneToday[time]){showToast('Ya marcaste esto hoy 👍');return}
+  doneToday[time] = true;
+  sv('done_today_'+todayKey, doneToday);
+  // XP & Gold
+  addXP(xp, habit);
+  addGold(gold, habit);
+  restoreHP(hp||0);
+  // Streak
+  updateStreak(habit);
+  // Sound
+  playAlertSound(sound||'chime');
+  // Check if all done
+  const allDone = Object.keys(doneToday).length === SCHEDULE.length;
+  if(allDone){
+    addXP(200,'¡Día Perfecto!');
+    addGold(100,'¡Día Perfecto!');
+    showToast('🏆 ¡DÍA PERFECTO! +200XP +100🪙','gold',5000);
+    spawnParticles();
+    playAlertSound('levelup');
+  } else {
+    showToast(`✅ +${xp}XP +${gold}🪙 — ¡Racha: ${streakData[habit]||1} días!`,'xp');
+  }
+  renderTimeline();
+  updateRPGHeader();
+}
+
+function updateStreak(habit){
+  if(!streakData[habit]) streakData[habit]=0;
+  const lastKey = ld('streak_last_'+habit,'');
+  const yesterday = new Date(Date.now()-86400000).toDateString();
+  if(lastKey === yesterday || lastKey === todayKey){
+    if(lastKey !== todayKey) streakData[habit]++;
+  } else {
+    streakData[habit] = 1;
+  }
+  sv('streaks_v4', streakData);
+  sv('streak_last_'+habit, todayKey);
+}
+
+/* ══════════════════════════════════════════════
+   HABITS SCREEN
+══════════════════════════════════════════════ */
+function renderHabitos(){
+  // 5AM streak
+  const fiveAMStreak = calcStreak5AM();
+  const el5 = document.getElementById('streak-5am-num');
+  if(el5) el5.textContent = fiveAMStreak;
+
+  // 5AM calendar
+  renderStreakCalendar();
+
+  // Habit list
+  const el = document.getElementById('habit-tracker');
+  if(!el) return;
+  el.innerHTML='';
+  HABITS.forEach(h=>{
+    const streak = streakData[h.id]||0;
+    const done = !!habitData[h.id+'_'+todayKey];
+    const pct = Math.min(100, Math.round((streak/h.maxStreak)*100));
+    const d = document.createElement('div');
+    d.className = 'habit-card'+(done?' done':'');
+    d.innerHTML=`
+      <div class="habit-emoji">${h.icon}</div>
+      <div class="habit-info">
+        <div class="habit-name">${h.name}</div>
+        <div class="habit-streak-row">
+          <div class="habit-bar"><div class="habit-bar-fill" style="width:${pct}%"></div></div>
+          <div class="habit-streak-lbl">${streak}/${h.maxStreak}🔥</div>
+        </div>
+        <div class="habit-rewards-row">
+          <span class="pill xp">+${h.xp}XP</span>
+          <span class="pill gold">+${h.gold}🪙</span>
+          ${done?'<span class="pill hp">✅ Hecho</span>':''}
+        </div>
+      </div>
+      <button class="habit-check-btn ${done?'done-btn':'undone'}" onclick="markHabit('${h.id}')">${done?'✅':'+ Check'}</button>
+    `;
+    el.appendChild(d);
+  });
+
+  renderSleep();
+}
+
+function markHabit(id){
+  const key = id+'_'+todayKey;
+  if(habitData[key]){showToast('Ya marcaste este hábito hoy 👍');return}
+  habitData[key] = true;
+  sv('habits_v4', habitData);
+  const h = HABITS.find(x=>x.id===id);
+  if(h){
+    addXP(h.xp, h.name);
+    addGold(h.gold, h.name);
+    updateStreak(id);
+    playAlertSound('chime');
+    showToast(`${h.icon} +${h.xp}XP +${h.gold}🪙 — ¡${streakData[id]} días de racha!`,'xp');
+  }
+  renderHabitos();
+  renderInicio();
+}
+
+function mark5AM(){
+  const key = '5am_'+todayKey;
+  if(fiveAMData[key]){showToast('¡Ya registraste tu madrugada de hoy! 🌅');return}
+  fiveAMData[key] = true;
+  sv('5am_v4', fiveAMData);
+  markHabit('5am');
+  const streak = calcStreak5AM();
+  showToast(`🌅 ¡Racha 5AM: ${streak} días! +50XP +10🪙`,'gold',4000);
+  playAlertSound('morning');
+  renderHabitos();
+}
+
+function calcStreak5AM(){
+  let streak=0;
+  const now = new Date();
+  for(let i=0;i<90;i++){
+    const d = new Date(now.getTime() - i*86400000);
+    const k = '5am_'+d.toDateString();
+    if(fiveAMData[k]) streak++;
+    else if(i>0) break;
+  }
+  return streak;
+}
+
+function renderStreakCalendar(){
+  const el = document.getElementById('streak-calendar-5am');
+  if(!el) return;
+  el.innerHTML='';
+  const days=['D','L','M','M','J','V','S'];
+  // Show 28 days
+  for(let i=27;i>=0;i--){
+    const d = new Date(Date.now()-i*86400000);
+    const k = '5am_'+d.toDateString();
+    const isToday = i===0;
+    const hit = !!fiveAMData[k];
+    const box = document.createElement('div');
+    box.className = 'sc-day'+(hit?' hit':'')+(isToday?' today':'');
+    box.textContent = days[d.getDay()];
+    box.title = d.toLocaleDateString('es-AR');
+    el.appendChild(box);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   SLEEP
+══════════════════════════════════════════════ */
+function renderSleep(){
+  const el = document.getElementById('sleep-hours');
+  if(!el) return;
+  el.innerHTML='';
+  for(let i=1;i<=10;i++){
+    const b = document.createElement('div');
+    b.className='sh-block'+(i<=sleepData?' filled':'')+(i===sleepData?' active':'');
+    b.onclick=()=>setSleep(i);
+    el.appendChild(b);
+  }
+  const sv2=document.getElementById('sleep-val');
+  const ss=document.getElementById('sleep-status');
+  const st=document.getElementById('sleep-tip');
+  if(sv2) sv2.textContent = sleepData?sleepData+'h':'—';
+  if(ss){
+    if(!sleepData) ss.textContent='Tocá para registrar';
+    else if(sleepData<6) ss.textContent='😰 Poco sueño · HP en riesgo';
+    else if(sleepData<7) ss.textContent='😐 Mejorable · Intentá 7h+';
+    else if(sleepData<=8) ss.textContent='😊 ¡Perfecto! Testosterona al máximo';
+    else ss.textContent='😴 Excelente · Recuperación total';
+  }
+  if(st){
+    if(!sleepData||sleepData>=7) st.textContent='💡 ZMA + Magnesio 30 min antes. Oscuridad total.';
+    else st.textContent='⚠️ Sueño insuficiente = -15% testosterona en 1 semana.';
+  }
+}
+
+function setSleep(h){
+  sleepData=h;sv('sleep_v4',h);
+  renderSleep();
+  if(h>=7){
+    markHabit('sueno');
+    showToast(`😴 ${h}h registradas! +30XP · Testosterona maximizada`,'xp');
+  } else {
+    showToast(`💤 ${h}h. Intentá llegar a 7h mañana.`);
+  }
+}
+
+/* ══════════════════════════════════════════════
+   MISSIONS
+══════════════════════════════════════════════ */
+function initMissions(){
+  if(missions.length===0){
+    missions = DEFAULT_MISSIONS.map(m=>({...m,done:false,doneDate:''}));
+    sv('missions_v4', missions);
+  }
+}
+
+function renderMissions(){
+  initMissions();
+  renderMissionList('missions-recruit','recruit');
+  renderMissionList('missions-content','content');
+  renderMissionList('missions-sales','sales');
+}
+
+function renderMissionList(containerId, type){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML='';
+  const filtered = missions.filter(m=>m.type===type);
+  filtered.forEach(m=>{
+    const isDone = m.done && m.doneDate===todayKey;
+    const d = document.createElement('div');
+    d.className='mission-card';
+    d.innerHTML=`
+      <div class="mission-header">
+        <div class="mission-icon">${m.icon}</div>
+        <div>
+          <div class="mission-title">${m.title}</div>
+          <div class="mission-type">${m.daily?'Misión diaria':'Misión especial'}</div>
+        </div>
+      </div>
+      <div class="mission-desc">${m.desc}</div>
+      <div class="mission-footer">
+        <div class="mission-rewards">
+          <span class="pill xp">+${m.xp}XP</span>
+          <span class="pill gold">+${m.gold}🪙</span>
+        </div>
+        <button class="mission-btn ${isDone?'completed':''}" onclick="completeMission('${m.id}')">${isDone?'✅ Completada':'⚔️ Completar'}</button>
+      </div>
+    `;
+    el.appendChild(d);
+  });
+}
+
+function completeMission(id){
+  const m = missions.find(x=>x.id===id);
+  if(!m) return;
+  if(m.done && m.doneDate===todayKey){showToast('¡Misión ya completada hoy! ⚔️');return}
+  m.done=true; m.doneDate=todayKey;
+  sv('missions_v4', missions);
+  addXP(m.xp, m.title);
+  addGold(m.gold, m.title);
+  playAlertSound('reward');
+  showToast(`⚔️ ¡Misión completada! +${m.xp}XP +${m.gold}🪙`,'gold',4000);
+  spawnParticles();
+  renderMissions();
+}
+
+function addCustomMission(){
+  const name = document.getElementById('mission-new-name').value.trim();
+  const type = document.getElementById('mission-new-type').value;
+  if(!name){showToast('⚠️ Ingresá el nombre de la misión');return}
+  const icons={recruit:'👤',content:'📱',sales:'💰'};
+  missions.push({
+    id:'custom_'+Date.now(), type, icon:icons[type]||'⚔️',
+    title:name, desc:'Misión especial personalizada.',
+    xp:60, gold:25, done:false, doneDate:'', daily:false
+  });
+  sv('missions_v4', missions);
+  document.getElementById('mission-new-name').value='';
+  showToast('⚔️ ¡Misión especial creada!');
+  renderMissions();
+}
+
+/* ══════════════════════════════════════════════
+   SALUD SCREEN
+══════════════════════════════════════════════ */
+function renderSalud(){
+  renderWeightUI('salud-current','salud-wh-fill','salud-current','salud-lost-lbl','kg-boxes-2');
+  renderWeightChart();
+  renderKmChart();
+  renderGlucosa();
+}
+
+function renderWeightChart(){
+  const el = document.getElementById('weight-chart-bars');
+  if(!el) return;
+  const relevant = weightLog.slice(-10);
+  if(!relevant.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:20px 0">Sin registros todavía</div>';return}
+  el.innerHTML='';
+  const vals = relevant.map(w=>w.kg);
+  const mn = Math.min(...vals)-1;
+  const mx = Math.max(...vals)+1;
+  relevant.forEach(w=>{
+    const h = Math.max(8, Math.round(((w.kg-mn)/(mx-mn))*70));
+    const col = document.createElement('div');
+    col.className='chart-col';
+    const color = w.kg<=(rpg.pesoInicial||110) ? 'var(--hp2)' : 'var(--red1)';
+    col.innerHTML=`
+      <div class="chart-val">${w.kg}</div>
+      <div class="chart-bar-fill" style="height:${h}px;background:${color}"></div>
+      <div class="chart-lbl">${w.date.split(' ')[1]||''}</div>
+    `;
+    el.appendChild(col);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   KM / CAMINATA
+══════════════════════════════════════════════ */
+function addKm(){
+  const v = parseFloat(document.getElementById('km-in').value)||0;
+  if(v<=0||v>60){showToast('⚠️ Ingresá km válidos');return}
+  kmData[todayDOW]=v;
+  sv('km_v4', kmData);
+  document.getElementById('km-in').value='';
+  markHabit('caminata');
+  addXP(40,'Caminata');
+  addGold(10,'Caminata');
+  showToast(`🚶 ${v}km registrados! +40XP +10🪙`,'xp');
+  renderSalud();
+}
+
+function renderKmChart(){
+  const days=['D','L','M','M','J','V','S'];
+  const max = Math.max(...kmData,3);
+  const c = document.getElementById('km-bars');
+  if(!c) return;
+  c.innerHTML='';
+  kmData.forEach((km,i)=>{
+    const h = Math.max(6, Math.round((km/max)*70));
+    const isT = i===todayDOW;
+    const col = document.createElement('div');
+    col.className='chart-col';
+    const color = km>0?(isT?'var(--hp1)':'var(--hp2)'):'var(--bg3)';
+    col.innerHTML=`
+      <div class="chart-val">${km>0?km:''}</div>
+      <div class="chart-bar-fill" style="height:${h}px;background:${color};${isT?'box-shadow:0 0 8px rgba(0,255,136,.4)':''}"></div>
+      <div class="chart-lbl" style="${isT?'color:var(--hp1)':''}">
+        ${days[i]}${isT?'<br><span style="font-size:8px;color:var(--hp1)">HOY</span>':''}
+      </div>
+    `;
+    c.appendChild(col);
+  });
+  const total = kmData.reduce((a,b)=>a+b,0).toFixed(1);
+  const best = Math.max(...kmData).toFixed(1);
+  const active = kmData.filter(k=>k>0).length;
+  const e1=document.getElementById('km-week-total');
+  const e2=document.getElementById('km-best');
+  const e3=document.getElementById('km-days-active');
+  if(e1)e1.textContent=total;
+  if(e2)e2.textContent=best;
+  if(e3)e3.textContent=active;
+}
+
+/* ══════════════════════════════════════════════
+   GLUCOSA
+══════════════════════════════════════════════ */
+function saveGlucosa(){
+  const ay = parseFloat(document.getElementById('gluc-ay-in').value);
+  const po = parseFloat(document.getElementById('gluc-post-in').value);
+  _saveGlucosaInternal(ay, po);
+  document.getElementById('gluc-ay-in').value='';
+  document.getElementById('gluc-post-in').value='';
+  renderSalud();
+}
+
+function saveGlucosa2(){
+  const ay = parseFloat(document.getElementById('gluc-ay-in2').value);
+  const po = parseFloat(document.getElementById('gluc-post-in2').value);
+  _saveGlucosaInternal(ay, po);
+  document.getElementById('gluc-ay-in2').value='';
+  document.getElementById('gluc-post-in2').value='';
+  renderGlucosa();
+}
+
+function _saveGlucosaInternal(ay, po){
+  if(isNaN(ay)&&isNaN(po)){showToast('⚠️ Ingresá al menos un valor');return}
+  glucData.push({date:todayKey, ay:ay||null, po:po||null});
+  if(glucData.length>30) glucData.shift();
+  sv('gluc_v4', glucData);
+  addXP(15,'Registro glucosa');
+  showToast('🩸 Glucosa registrada! +15XP','xp');
+}
+
+function glucStatus(v, type){
+  if(type==='ay') return v<100?['normal','✅ Normal']:v<126?['pre','⚠️ Prediabético']:['high','🚨 Alto'];
+  return v<140?['normal','✅ Normal']:v<200?['pre','⚠️ Prediabético']:['high','🚨 Alto'];
+}
+
+function _renderGlucData(ayEl, ayStEl, poEl, poStEl, chartEl){
+  const last = glucData[glucData.length-1]||null;
+  if(last){
+    if(last.ay && ayEl){
+      const[cls,txt]=glucStatus(last.ay,'ay');
+      ayEl.textContent=last.ay; ayEl.className='gluc-val '+cls;
+      if(ayStEl){ayStEl.textContent=txt; ayStEl.className='gluc-status '+cls;}
+    }
+    if(last.po && poEl){
+      const[cls,txt]=glucStatus(last.po,'po');
+      poEl.textContent=last.po; poEl.className='gluc-val '+cls;
+      if(poStEl){poStEl.textContent=txt; poStEl.className='gluc-status '+cls;}
+    }
+  }
+  if(chartEl){
+    chartEl.innerHTML='';
+    const rel=glucData.filter(d=>d.ay).slice(-10);
+    if(!rel.length){chartEl.innerHTML='<div style="font-size:12px;color:var(--text3);padding:20px 0">Sin datos todavía</div>';return}
+    const max=Math.max(...rel.map(d=>d.ay),200);
+    rel.forEach(d=>{
+      const h=Math.max(6,Math.round((d.ay/max)*70));
+      const[cls]=glucStatus(d.ay,'ay');
+      const colors={normal:'var(--hp1)',pre:'var(--warn)',high:'var(--red1)'};
+      const col=document.createElement('div');
+      col.className='chart-col';
+      col.innerHTML=`<div class="chart-val">${d.ay}</div><div class="chart-bar-fill" style="height:${h}px;background:${colors[cls]}"></div>`;
+      chartEl.appendChild(col);
+    });
+  }
+}
+
+function renderGlucosa(){
+  _renderGlucData(
+    document.getElementById('gluc-ayunas-val'),
+    document.getElementById('gluc-ayunas-status'),
+    document.getElementById('gluc-post-val'),
+    document.getElementById('gluc-post-status'),
+    document.getElementById('gluc-chart')
+  );
+  _renderGlucData(
+    document.getElementById('gluc-ayunas-val2'),
+    document.getElementById('gluc-ayunas-status2'),
+    document.getElementById('gluc-post-val2'),
+    document.getElementById('gluc-post-status2'),
+    document.getElementById('gluc-chart2')
+  );
+}
+
+/* ══════════════════════════════════════════════
+   KETTLEBELL SERIES
+══════════════════════════════════════════════ */
+const SERIES_CONFIG={
+  'series-swing':{total:4,key:'sw',xp:20},
+  'series-goblet':{total:4,key:'gb',xp:15},
+  'series-rdl':{total:3,key:'rd',xp:15},
+  'series-press':{total:3,key:'pr',xp:15},
+  'series-row':{total:3,key:'rw',xp:15},
+  'series-carry':{total:4,key:'cy',xp:20},
+};
+
+function renderSeries(){
+  Object.entries(SERIES_CONFIG).forEach(([id,cfg])=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML='';
+    const done = seriesData[cfg.key]||0;
+    for(let i=1;i<=cfg.total;i++){
+      const d=document.createElement('div');
+      d.className='sdot'+(i<=done?' done':'');
+      d.textContent=i;
+      d.onclick=()=>setSerie(cfg.key,i,cfg.total,cfg.xp);
+      el.appendChild(d);
+    }
+  });
+}
+
+function setSerie(key,n,total,xp){
+  seriesData[key]=n; sv('series_v4',seriesData);
+  renderSeries();
+  if(n>=total){
+    addXP(xp,'Serie completa');
+    showToast(`💪 Serie completa! +${xp}XP 🔥`,'xp');
+  } else {
+    showToast(`Serie ${n}/${total} ✅`);
+  }
+}
+
+function completarEntrenamiento(){
+  Object.values(SERIES_CONFIG).forEach(cfg=>{seriesData[cfg.key]=cfg.total});
+  sv('series_v4',seriesData);
+  markHabit('entrenamiento');
+  renderSeries();
+  playAlertSound('training');
+  showToast('🏋️ ¡ENTRENAMIENTO ÉPICO! +150XP +50🪙','gold',5000);
+  spawnParticles();
+}
+
+/* ══════════════════════════════════════════════
+   SHOP / REWARDS
+══════════════════════════════════════════════ */
+function initRewards(){
+  if(rewards.length===0){
+    rewards=[...DEFAULT_REWARDS];
+    sv('rewards_v4',rewards);
+  }
+}
+
+function renderShop(){
+  initRewards();
+  const el = document.getElementById('shop-items');
+  if(!el) return;
+  el.innerHTML='';
+  rewards.forEach(r=>{
+    const canAfford = rpg.gold >= r.cost;
+    const d=document.createElement('div');
+    d.className='shop-item';
+    d.innerHTML=`
+      <div class="shop-emoji">${r.emoji}</div>
+      <div class="shop-info">
+        <div class="shop-name">${r.name}</div>
+        <div class="shop-desc" style="font-size:11px;color:var(--text3)">Recompensa del mundo real</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="shop-cost">🪙 ${r.cost}</div>
+        <button class="shop-btn" ${!canAfford?'disabled':''} onclick="buyReward('${r.id}')">${canAfford?'🛒 Canjear':'🔒 Bloq.'}</button>
+      </div>
+    `;
+    el.appendChild(d);
+  });
+
+  // Gold history
+  const gh = document.getElementById('gold-history');
+  if(gh){
+    gh.innerHTML='';
+    goldHistory.slice(0,15).forEach(h=>{
+      const d=document.createElement('div');
+      d.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:12px';
+      d.innerHTML=`<span style="color:var(--text2)">${h.reason}</span><span style="color:${h.type==='earn'?'var(--gold1)':'var(--red1)'};font-weight:800">${h.type==='earn'?'+':'−'}${h.amount}🪙</span>`;
+      gh.appendChild(d);
+    });
+    if(!goldHistory.length) gh.innerHTML='<div style="font-size:12px;color:var(--text3);padding:12px 0">Sin transacciones todavía. Completá tareas para ganar oro.</div>';
+  }
+
+  updateRPGHeader();
+}
+
+function buyReward(id){
+  const r = rewards.find(x=>x.id===id);
+  if(!r) return;
+  if(!spendGold(r.cost)){showToast('⚠️ No tenés suficiente oro 🪙','warn');return}
+  goldHistory.unshift({type:'spend',amount:r.cost,reason:`Canjeado: ${r.name}`,date:new Date().toLocaleDateString('es-AR')});
+  sv('gold_history_v4',goldHistory);
+  playAlertSound('reward');
+  showToast(`🎁 ¡${r.emoji} ${r.name} desbloqueado! Te lo merecés 🏆`,'gold',4000);
+  spawnParticles();
+  renderShop();
+}
+
+function addReward(){
+  const name = document.getElementById('reward-name').value.trim();
+  const cost = parseInt(document.getElementById('reward-cost').value)||50;
+  const emoji = document.getElementById('reward-emoji').value||'🎁';
+  if(!name){showToast('⚠️ Ingresá el nombre');return}
+  rewards.push({id:'rw_'+Date.now(),emoji,name,cost});
+  sv('rewards_v4',rewards);
+  document.getElementById('reward-name').value='';
+  document.getElementById('reward-cost').value='';
+  document.getElementById('reward-emoji').value='';
+  showToast('✅ ¡Recompensa creada!');
+  renderShop();
+}
+
+/* ══════════════════════════════════════════════
+   CONFIG
+══════════════════════════════════════════════ */
+function renderConfig(){
+  const cn=document.getElementById('cfg-name');
+  const cp=document.getElementById('cfg-peso-ini');
+  const cm=document.getElementById('cfg-peso-meta');
+  const ca=document.getElementById('cfg-altura');
+  if(cn) cn.value=rpg.name||'';
+  if(cp) cp.value=rpg.pesoInicial||110;
+  if(cm) cm.value=rpg.pesoMeta||80;
+  if(ca) ca.value=rpg.altura||170;
+
+  const el=document.getElementById('notif-list');
+  if(!el) return;
+  el.innerHTML='';
+  NOTIFS.forEach(n=>{
+    const isOn=notifData[n.id]!==undefined?notifData[n.id]:n.on;
+    const d=document.createElement('div');
+    d.className='notif-item';
+    d.innerHTML=`
+      <div class="notif-icon">${n.icon}</div>
+      <div class="notif-info">
+        <div class="notif-name">${n.name}</div>
+        <div class="notif-time">⏰ ${n.time}</div>
+      </div>
+      <button class="toggle${isOn?' on':''}" id="tgl-${n.id}" onclick="toggleNotif('${n.id}')"></button>
+    `;
+    el.appendChild(d);
+  });
+}
+
+function toggleNotif(id){
+  const n=NOTIFS.find(x=>x.id===id);
+  const current=notifData[id]!==undefined?notifData[id]:n.on;
+  notifData[id]=!current;
+  sv('notif_v4',notifData);
+  renderConfig();
+  showToast(notifData[id]?'🔔 Alarma activada':'🔕 Alarma desactivada');
+}
+
+function saveConfig(){
+  const cn=document.getElementById('cfg-name').value.trim();
+  const cp=parseFloat(document.getElementById('cfg-peso-ini').value);
+  const cm=parseFloat(document.getElementById('cfg-peso-meta').value);
+  const ca=parseFloat(document.getElementById('cfg-altura').value);
+  if(cn) rpg.name=cn;
+  if(!isNaN(cp)) rpg.pesoInicial=cp;
+  if(!isNaN(cm)) rpg.pesoMeta=cm;
+  if(!isNaN(ca)) rpg.altura=ca;
+  sv('rpg_state',rpg);
+  updateRPGHeader();
+  showToast('✅ ¡Configuración guardada!','xp');
+}
+
+function resetAll(){
+  if(!confirm('¿Seguro? Se borra TODO el progreso. Sin vuelta atrás.')) return;
+  const keys=['rpg_state','streaks_v4','habits_v4','km_v4','gluc_v4','series_v4','sleep_v4','notif_v4','missions_v4','rewards_v4','gold_history_v4','weight_log_v4','5am_v4','active_days_v4','last_day_v4'];
+  keys.forEach(k=>localStorage.removeItem(k));
+  // also clean done_today keys
+  Object.keys(localStorage).filter(k=>k.startsWith('done_today_')).forEach(k=>localStorage.removeItem(k));
+  Object.keys(localStorage).filter(k=>k.startsWith('streak_last_')).forEach(k=>localStorage.removeItem(k));
+  location.reload();
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+function init(){
+  try { checkDailyReset(); } catch(e) { console.warn('checkDailyReset',e); }
+  try { initMissions(); } catch(e) { console.warn('initMissions',e); }
+  try { initRewards(); } catch(e) { console.warn('initRewards',e); }
+  try { updateRPGHeader(); } catch(e) { console.warn('updateRPGHeader',e); }
+  try { updateTimeBlockNow(); } catch(e) { console.warn('updateTimeBlockNow',e); }
+  try { renderInicio(); } catch(e) { console.warn('renderInicio',e); }
+  try { checkReminders(); } catch(e) { console.warn('checkReminders',e); }
+
+  // Activar pantalla inicio por defecto
+  try {
+    const s = document.getElementById('inicio');
+    if(s) s.classList.add('active');
+    const nb = document.querySelector('.nb');
+    if(nb) nb.classList.add('active');
+  } catch(e) {}
+
+  // Check if this is first launch, give welcome XP
+  try {
+    if(!ld('first_launch_done',false)){
+      sv('first_launch_done',true);
+      addXP(100,'¡Bienvenido al Mbarete RPG!');
+      addGold(50,'Bono de inicio');
+      setTimeout(()=>showToast('⚔️ ¡Bienvenido guerrero! +100XP +50🪙 de inicio','gold',4000),1000);
+    }
+  } catch(e) {}
+}
+
+setInterval(checkReminders, 60000);
+
+// Auto-sync memory on page hide (iOS background)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    // Re-save all data to both storages before going to background
+    const keys = ['rpg_state','streaks_v4','habits_v4','km_v4','gluc_v4','series_v4',
+      'sleep_v4','notif_v4','missions_v4','rewards_v4','gold_history_v4',
+      'weight_log_v4','5am_v4','active_days_v4','last_day_v4'];
+    keys.forEach(k => { const v = ld(k, null); if(v !== null) sv(k, v); });
+  }
+});
+
+// iOS banner dismiss
+function dismissIOSBanner() {
+  document.getElementById('ios-banner').classList.remove('show');
+  sv('ios_banner_dismissed', true);
+}
+
+window.addEventListener('load', () => {
+  init();
+  // Show iOS "Add to Home Screen" banner if not already a PWA and not dismissed
+  if (isIOS && !isStandalone && !ld('ios_banner_dismissed', false)) {
+    setTimeout(() => {
+      document.getElementById('ios-banner').classList.add('show');
+    }, 3000);
+  }
+});
+</script>
+</body>
+</html>
+
