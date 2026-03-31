@@ -1807,7 +1807,7 @@ body::after {
 
       <div class="mcard" style="border:2px solid rgba(201,168,76,.6);margin-top:16px">
         <div class="mcard-title" style="color:#C9A84C;font-size:16px;margin-bottom:12px">ðŸŽ–ï¸ COMPROMISO FINAL</div>
-        <p style="font-style:italic;color:rgba(245,240,232,.85);line-height:1.8">Yo, <strong style="color:#C9A84C">${rpg ? rpg.name||'_______________' : '_______________'}</strong>, distribuidor del Logos Group 29239, me comprometo a aplicar la Mentalidad de Alto Rendimiento en mi trabajo diario en Royal Prestige.</p>
+        <p style="font-style:italic;color:rgba(245,240,232,.85);line-height:1.8">Yo, <strong style="color:#C9A84C" id="mfirma-nombre">_______________</strong>, distribuidor del Logos Group 29239, me comprometo a aplicar la Mentalidad de Alto Rendimiento en mi trabajo diario en Royal Prestige.</p>
         <p style="color:rgba(245,240,232,.75);font-size:13px;line-height:1.8">Me comprometo a:<br>
         â—† Tomarme responsabilidad total de mis resultados<br>
         â—† Procesar los rechazos como informaciÃ³n, no como fracasos<br>
@@ -3360,8 +3360,8 @@ function pedirPodcast(){
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    LOGOS â€” Centro de CapacitaciÃ³n
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
-let logosReuniones = ld(, []);
-let logosNotas = ld(, []);
+let logosReuniones = ld('logos_reuniones_v1', []);
+let logosNotas = ld('logos_notas_v1', []);
 
 function renderLogos(){
   renderAgenda();
@@ -3401,7 +3401,7 @@ function addReunion(){
   const tema = document.getElementById('logos-reunion-tema').value.trim();
   if(!titulo){showToast('âš ï¸ IngresÃ¡ el tÃ­tulo de la reuniÃ³n');return}
   logosReuniones.push({titulo, fecha, tema, creada: new Date().toLocaleDateString('es-AR')});
-  sv(, logosReuniones);
+  sv('logos_reuniones_v1', logosReuniones);
   document.getElementById('logos-reunion-titulo').value = '';
   document.getElementById('logos-reunion-fecha').value = '';
   document.getElementById('logos-reunion-tema').value = '';
@@ -3412,7 +3412,7 @@ function addReunion(){
 function deleteReunion(i){
   if(!confirm('Â¿Eliminar esta reuniÃ³n?')) return;
   logosReuniones.splice(i,1);
-  sv(, logosReuniones);
+  sv('logos_reuniones_v1', logosReuniones);
   renderAgenda();
 }
 
@@ -3447,7 +3447,7 @@ function addNota(){
   if(!texto){showToast('âš ï¸ EscribÃ­ tu nota');return}
   logosNotas.push({texto, fecha: new Date().toLocaleDateString('es-AR')});
   if(logosNotas.length > 50) logosNotas.shift();
-  sv(, logosNotas);
+  sv('logos_notas_v1', logosNotas);
   document.getElementById('logos-nota-texto').value = '';
   showToast('ðŸ“ Nota guardada','xp');
   renderNotas();
@@ -3455,7 +3455,7 @@ function addNota(){
 
 function deleteNota(i){
   logosNotas.splice(i,1);
-  sv(, logosNotas);
+  sv('logos_notas_v1', logosNotas);
   renderNotas();
 }
 
@@ -3463,15 +3463,18 @@ function deleteNota(i){
    MANUAL DE MENTALIDAD
 â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 function renderManual(){
-  // Set commitment date
+  // Nombre del guerrero en el compromiso
+  const mnombre = document.getElementById('mfirma-nombre');
+  if(mnombre) mnombre.textContent = rpg.name || 'Guerrero';
+  // Fecha de compromiso
   const fd = document.getElementById('mfecha');
   if(fd) fd.textContent = new Date().toLocaleDateString('es-AR');
-  // Restore checklist state
+  // Restaurar estado del checklist
   for(let i=0;i<9;i++){
     const box = document.querySelector('#mck'+i+' .mcheck-box');
     if(box && ld('mcheck_'+i,false)) box.classList.add('checked');
   }
-  // Restore commitment
+  // Restaurar compromiso firmado
   if(ld('manual_compromiso',false)){
     const ok = document.getElementById('mfirma-ok');
     if(ok) ok.style.display='block';
