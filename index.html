@@ -1740,7 +1740,7 @@ async function askCoachSilent(msg,callback){
   try{
     coachHistory.push({role:'user',content:msg});
     if(coachHistory.length>10)coachHistory=coachHistory.slice(-10);
-    const res=await fetch(WORKER_URL(),{
+    const res=await fetch(WORKER_URL,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:getSystemPrompt(),messages:coachHistory})
     });
@@ -1758,7 +1758,7 @@ async function callCoach(msg){
   coachHistory.push({role:'user',content:msg});
   if(coachHistory.length>10)coachHistory=coachHistory.slice(-10);
   try{
-    const res=await fetch(WORKER_URL(),{
+    const res=await fetch(WORKER_URL,{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:getSystemPrompt(),messages:coachHistory})
     });
