@@ -1745,7 +1745,7 @@ async function askCoachSilent(msg,callback){
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:getSystemPrompt(),messages:coachHistory})
     });
     const data=await res.json();
-    const reply=data.content&&data.content[0]?data.content[0].text:'';
+    const reply=data.content&&WORKER_URL?data.content[0].text:'';
     if(reply){coachHistory.push({role:'assistant',content:reply});if(callback)callback(reply);}
   }catch(e){if(callback)callback('')}
 }
